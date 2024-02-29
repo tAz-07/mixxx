@@ -94,11 +94,11 @@ MixtrackPlatinumFX.initComplete=false;
 
 MixtrackPlatinumFX.bpms = []; 
 MixtrackPlatinumFX.trackBPM = function(value, group, _control) {
-	// file_bpm always seems to be 0?
-	// this doesn't work if we have to scan for bpm as it will be zero initially
-	// so we hook into the bpm change as well, and if we have 0 then set it to the first value seen (in bpm output)
-	MixtrackPlatinumFX.bpms[script.deckFromGroup(group) - 1] = engine.getValue(group,"bpm");
-}
+    // file_bpm always seems to be 0?
+    // this doesn't work if we have to scan for bpm as it will be zero initially
+    // so we hook into the bpm change as well, and if we have 0 then set it to the first value seen (in bpm output)
+    MixtrackPlatinumFX.bpms[script.deckFromGroup(group) - 1] = engine.getValue(group,"bpm");
+};
 
 MixtrackPlatinumFX.BlinkTimer=0;
 MixtrackPlatinumFX.BlinkState=true;
@@ -106,44 +106,44 @@ MixtrackPlatinumFX.BlinkStateSlow=true;
 MixtrackPlatinumFX.CallBacks=[];
 MixtrackPlatinumFX.CallSpeed=[];
 MixtrackPlatinumFX.BlinkStart = function(callback, slow) {
-	for (var i in MixtrackPlatinumFX.CallBacks) {
-		if (!MixtrackPlatinumFX.CallBacks[i]) {
-			// empty slot
-			MixtrackPlatinumFX.CallBacks[i]=callback;
-			MixtrackPlatinumFX.CallSpeed[i]=slow;
-			return i+1;
-		}
-	}
-	var idx = MixtrackPlatinumFX.CallBacks.push(callback);
-	MixtrackPlatinumFX.CallSpeed[idx-1]=slow;
-	return idx;
+    for (const i in MixtrackPlatinumFX.CallBacks) {
+        if (!MixtrackPlatinumFX.CallBacks[i]) {
+            // empty slot
+            MixtrackPlatinumFX.CallBacks[i]=callback;
+            MixtrackPlatinumFX.CallSpeed[i]=slow;
+            return i+1;
+        }
+    }
+    const idx = MixtrackPlatinumFX.CallBacks.push(callback);
+    MixtrackPlatinumFX.CallSpeed[idx-1]=slow;
+    return idx;
 };
 MixtrackPlatinumFX.BlinkStop = function(index) {
-	MixtrackPlatinumFX.CallBacks[index-1]=null;
+    MixtrackPlatinumFX.CallBacks[index-1]=null;
 };
 MixtrackPlatinumFX.BlinkFunc = function() {
-	// toggle the global blink variables
-	MixtrackPlatinumFX.BlinkState = !MixtrackPlatinumFX.BlinkState;
-	if (MixtrackPlatinumFX.BlinkState) {
-		MixtrackPlatinumFX.BlinkStateSlow = !MixtrackPlatinumFX.BlinkStateSlow;
-	}
-	
-	// if we should be blinking the fx, then call its function
-	if (MixtrackPlatinumFX.FxBlinkState) {
-		MixtrackPlatinumFX.FxBlinkUpdateLEDs();
-	}
-	// fire any callbacks
-	for (var i in MixtrackPlatinumFX.CallBacks) {
-		if (MixtrackPlatinumFX.CallBacks[i]) {
-			if (MixtrackPlatinumFX.CallSpeed[i]) {
-				if (MixtrackPlatinumFX.BlinkState) {
-					MixtrackPlatinumFX.CallBacks[i](MixtrackPlatinumFX.BlinkStateSlow);
-				}
-			} else {
-				MixtrackPlatinumFX.CallBacks[i](MixtrackPlatinumFX.BlinkState);
-			}
-		}
-	}
+    // toggle the global blink variables
+    MixtrackPlatinumFX.BlinkState = !MixtrackPlatinumFX.BlinkState;
+    if (MixtrackPlatinumFX.BlinkState) {
+        MixtrackPlatinumFX.BlinkStateSlow = !MixtrackPlatinumFX.BlinkStateSlow;
+    }
+
+    // if we should be blinking the fx, then call its function
+    if (MixtrackPlatinumFX.FxBlinkState) {
+        MixtrackPlatinumFX.FxBlinkUpdateLEDs();
+    }
+    // fire any callbacks
+    for (const i in MixtrackPlatinumFX.CallBacks) {
+        if (MixtrackPlatinumFX.CallBacks[i]) {
+            if (MixtrackPlatinumFX.CallSpeed[i]) {
+                if (MixtrackPlatinumFX.BlinkState) {
+                    MixtrackPlatinumFX.CallBacks[i](MixtrackPlatinumFX.BlinkStateSlow);
+                }
+            } else {
+                MixtrackPlatinumFX.CallBacks[i](MixtrackPlatinumFX.BlinkState);
+            }
+        }
+    }
 };
 
 MixtrackPlatinumFX.init = function(id, debug) {     
@@ -152,54 +152,54 @@ MixtrackPlatinumFX.init = function(id, debug) {
     // print("init MixtrackPlatinumFX " + id + " debug: " + debug);
     
     // disable demo lightshow
-    var exitDemoSysex = [0xF0, 0x7E, 0x00, 0x06, 0x01, 0xF7];
+    const exitDemoSysex = [0xF0, 0x7E, 0x00, 0x06, 0x01, 0xF7];
     midi.sendSysexMsg(exitDemoSysex, exitDemoSysex.length);
 
-// status, extra 04 is just more device id, not sure what the 05 is
-//F0 00 20 04 7F 03 01 05 F7
+    // status, extra 04 is just more device id, not sure what the 05 is
+    //F0 00 20 04 7F 03 01 05 F7
 
-// wake (not sure what the extra 07 is for?
-//F0 7E 00 07 06 01 F7
+    // wake (not sure what the extra 07 is for?
+    //F0 7E 00 07 06 01 F7
 
-// I think these are the dial updates
-//F0 00 20 04 7F 02 02 04 08 00 00 04 00 00 00 05 F7
-//F0 00 20 04 7F 04 01 04 00 00 00 04 00 00 00 05 F7
-//F0 00 20 04 7F 02 04 04 08 00 00 04 00 00 00 07 00 00 F7
-//F0 00 20 04 7F 03 02 04 08 00 00 04 00 00 00 05 F7
-//F0 00 20 04 7F 03 04 04 08 00 00 04 00 00 00 07 00 00 F7
-//F0 00 20 04 7F 01 04 04 08 00 00 04 00 00 00 07 00 00 F7
-//F0 00 20 04 7F 04 04 04 08 00 00 04 00 00 00 07 00 00 F7
+    // I think these are the dial updates
+    //F0 00 20 04 7F 02 02 04 08 00 00 04 00 00 00 05 F7
+    //F0 00 20 04 7F 04 01 04 00 00 00 04 00 00 00 05 F7
+    //F0 00 20 04 7F 02 04 04 08 00 00 04 00 00 00 07 00 00 F7
+    //F0 00 20 04 7F 03 02 04 08 00 00 04 00 00 00 05 F7
+    //F0 00 20 04 7F 03 04 04 08 00 00 04 00 00 00 07 00 00 F7
+    //F0 00 20 04 7F 01 04 04 08 00 00 04 00 00 00 07 00 00 F7
+    //F0 00 20 04 7F 04 04 04 08 00 00 04 00 00 00 07 00 00 F7
 
-	// default to just the top 4
+    // default to just the top 4
     midi.sendSysexMsg(MixtrackPlatinumFX.faderCutSysex4, MixtrackPlatinumFX.faderCutSysex4.length);
 
     // initialize component containers
     MixtrackPlatinumFX.deck = new components.ComponentContainer();
     MixtrackPlatinumFX.effect = new components.ComponentContainer();
-    var i;
+    let i;
     for (i = 0; i < 4; i++) {
-		var group="[Channel" + (i+1) + "]";
+        const group=`[Channel${  i+1  }]`;
         MixtrackPlatinumFX.deck[i] = new MixtrackPlatinumFX.Deck(i + 1);
         MixtrackPlatinumFX.updateRateRange(i, group, MixtrackPlatinumFX.pitchRanges[0]);
-		// refresh keylock state (the output mapping in the xml doesn't seem to do it
+	// refresh keylock state (the output mapping in the xml doesn't seem to do it
         midi.sendShortMsg(0x80 | i, 0x0D, engine.getValue(group,"keylock")?0x7F:0x00);
         midi.sendShortMsg(0x90 | i, 0x0D, engine.getValue(group,"keylock")?0x7F:0x00);
-		// Hook into this and save the bpm_file when loaded so we can reset it later
-		engine.makeConnection(group, 'track_loaded', MixtrackPlatinumFX.trackBPM ).trigger();
+	// Hook into this and save the bpm_file when loaded so we can reset it later
+	engine.makeConnection(group, 'track_loaded', MixtrackPlatinumFX.trackBPM ).trigger();
     }
     for (i = 0; i < 2; i++) {
         MixtrackPlatinumFX.effect[i] = new MixtrackPlatinumFX.EffectUnit((i % 2)+1);
-	}
-	// turn effect for master and headphones off to avoid confusion
-	engine.setValue("[EffectRack1_EffectUnit1]", "group_[Headphone]_enable", 0);
-	engine.setValue("[EffectRack1_EffectUnit2]", "group_[Headphone]_enable", 0);
-	engine.setValue("[EffectRack1_EffectUnit1]", "group_[Master]_enable", 0);
-	engine.setValue("[EffectRack1_EffectUnit2]", "group_[Master]_enable", 0);
+    }
+    // turn effect for master and headphones off to avoid confusion
+    engine.setValue("[EffectRack1_EffectUnit1]", "group_[Headphone]_enable", 0);
+    engine.setValue("[EffectRack1_EffectUnit2]", "group_[Headphone]_enable", 0);
+    engine.setValue("[EffectRack1_EffectUnit1]", "group_[Master]_enable", 0);
+    engine.setValue("[EffectRack1_EffectUnit2]", "group_[Master]_enable", 0);
 
     MixtrackPlatinumFX.browse = new MixtrackPlatinumFX.Browse();
     MixtrackPlatinumFX.gains = new MixtrackPlatinumFX.Gains();
 
-    var statusSysex = [0xF0, 0x00, 0x20, 0x7F, 0x03, 0x01, 0xF7];
+    const statusSysex = [0xF0, 0x00, 0x20, 0x7F, 0x03, 0x01, 0xF7];
     midi.sendSysexMsg(statusSysex, statusSysex.length);
 
     engine.makeConnection("[Channel1]", "VuMeter", MixtrackPlatinumFX.vuCallback);
@@ -207,10 +207,10 @@ MixtrackPlatinumFX.init = function(id, debug) {
     engine.makeConnection("[Channel3]", "VuMeter", MixtrackPlatinumFX.vuCallback);
     engine.makeConnection("[Channel4]", "VuMeter", MixtrackPlatinumFX.vuCallback);
 
-    engine.makeConnection("[Channel1]", 'rate', MixtrackPlatinumFX.rateCallback).trigger();
-    engine.makeConnection("[Channel2]", 'rate', MixtrackPlatinumFX.rateCallback).trigger();
-    engine.makeConnection("[Channel3]", 'rate', MixtrackPlatinumFX.rateCallback).trigger();
-    engine.makeConnection("[Channel4]", 'rate', MixtrackPlatinumFX.rateCallback).trigger();
+    engine.makeConnection("[Channel1]", "rate", MixtrackPlatinumFX.rateCallback).trigger();
+    engine.makeConnection("[Channel2]", "rate", MixtrackPlatinumFX.rateCallback).trigger();
+    engine.makeConnection("[Channel3]", "rate", MixtrackPlatinumFX.rateCallback).trigger();
+    engine.makeConnection("[Channel4]", "rate", MixtrackPlatinumFX.rateCallback).trigger();
 	
     // trigger is needed to initialize lights to 0x01
     MixtrackPlatinumFX.deck.forEachComponent(function(component) {
@@ -228,28 +228,28 @@ MixtrackPlatinumFX.init = function(id, debug) {
     midi.sendShortMsg(0x99, 0x04, MixtrackPlatinumFX.LOW_LIGHT);
     midi.sendShortMsg(0x99, 0x05, MixtrackPlatinumFX.LOW_LIGHT);
     
-	// since we default to active on deck 1 and 2 make sure the controller does too
-	midi.sendShortMsg(0x90, 0x08, 0x7F);
-	midi.sendShortMsg(0x91, 0x08, 0x7F);
+    // since we default to active on deck 1 and 2 make sure the controller does too
+    midi.sendShortMsg(0x90, 0x08, 0x7F);
+    midi.sendShortMsg(0x91, 0x08, 0x7F);
 	
     // setup elapsed/remaining tracking
     engine.makeConnection("[Controls]", "ShowDurationRemaining", MixtrackPlatinumFX.timeElapsedCallback);
-	MixtrackPlatinumFX.initComplete=true;
-	MixtrackPlatinumFX.updateArrows(true);
+    MixtrackPlatinumFX.initComplete=true;
+    MixtrackPlatinumFX.updateArrows(true);
 	
-	MixtrackPlatinumFX.BlinkTimer = engine.beginTimer(MixtrackPlatinumFX.blinkDelay/2, MixtrackPlatinumFX.BlinkFunc);
+    MixtrackPlatinumFX.BlinkTimer = engine.beginTimer(MixtrackPlatinumFX.blinkDelay/2, MixtrackPlatinumFX.BlinkFunc);
 };
 
 MixtrackPlatinumFX.shutdown = function() {
-    var shutdownSysex = [0xF0, 0x00, 0x20, 0x7F, 0x02, 0xF7];
-	var i;
-	
-	if (MixtrackPlatinumFX.BlinkTimer!==0) {
-		engine.stopTimer(MixtrackPlatinumFX.BlinkTimer);
-		MixtrackPlatinumFX.BlinkTimer=0;
-	}
-	
-	for (i=0;i<4;i++) {
+    const shutdownSysex = [0xF0, 0x00, 0x20, 0x7F, 0x02, 0xF7];
+    let i;
+
+    if (MixtrackPlatinumFX.BlinkTimer!==0) {
+        engine.stopTimer(MixtrackPlatinumFX.BlinkTimer);
+        MixtrackPlatinumFX.BlinkTimer=0;
+    }
+
+    for (i=0; i<4; i++) {
         // update spinner and position indicator
         midi.sendShortMsg(0xB0 | i, 0x3F, 0);
         midi.sendShortMsg(0xB0 | i, 0x06, 0);
@@ -259,17 +259,17 @@ MixtrackPlatinumFX.shutdown = function() {
         midi.sendShortMsg(0x80 | i, 0x0A, 0x00); // down arrow off
         midi.sendShortMsg(0x80 | i, 0x09, 0x00); // up arrow off
 		
-		MixtrackPlatinumFX.sendScreenRateMidi(i+1,0);
-		midi.sendShortMsg(0x90+i, 0x0e, 0);
-		MixtrackPlatinumFX.sendScreenBpmMidi(i+1,0);
-		MixtrackPlatinumFX.sendScreenTimeMidi(i+1,0);
-		MixtrackPlatinumFX.sendScreenDurationMidi(i+1,0);		
-	}
+        MixtrackPlatinumFX.sendScreenRateMidi(i+1, 0);
+        midi.sendShortMsg(0x90+i, 0x0e, 0);
+        MixtrackPlatinumFX.sendScreenBpmMidi(i+1, 0);
+        MixtrackPlatinumFX.sendScreenTimeMidi(i+1, 0);
+        MixtrackPlatinumFX.sendScreenDurationMidi(i+1, 0);
+    }
 
-	// switch to decks 1 and 2
-	midi.sendShortMsg(0x90, 0x08, 0x7F);
-	midi.sendShortMsg(0x91, 0x08, 0x7F);
-	
+    // switch to decks 1 and 2
+    midi.sendShortMsg(0x90, 0x08, 0x7F);
+    midi.sendShortMsg(0x91, 0x08, 0x7F);
+//Chloe	
     midi.sendSysexMsg(shutdownSysex, shutdownSysex.length);
 };
 
