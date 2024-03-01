@@ -92,12 +92,12 @@ MixtrackPlatinumFX.shifted = false;
 
 MixtrackPlatinumFX.initComplete=false;
 
-MixtrackPlatinumFX.bpms = []; 
+MixtrackPlatinumFX.bpms = [];
 MixtrackPlatinumFX.trackBPM = function(value, group, _control) {
     // file_bpm always seems to be 0?
     // this doesn't work if we have to scan for bpm as it will be zero initially
     // so we hook into the bpm change as well, and if we have 0 then set it to the first value seen (in bpm output)
-    ixtrackPlatinumFX.bpms[script.deckFromGroup(group) - 1] = engine.getValue(group, "bpm");
+    MixtrackPlatinumFX.bpms[script.deckFromGroup(group) - 1] = engine.getValue(group, "bpm");
 };
 
 MixtrackPlatinumFX.BlinkTimer=0;
@@ -146,7 +146,7 @@ MixtrackPlatinumFX.BlinkFunc = function() {
     }
 };
 
-MixtrackPlatinumFX.init = function(id, debug) {     
+MixtrackPlatinumFX.init = function(id, debug) {
     MixtrackPlatinumFX.id = id;
     MixtrackPlatinumFX.debug = debug;
     // print("init MixtrackPlatinumFX " + id + " debug: " + debug);
@@ -181,11 +181,11 @@ MixtrackPlatinumFX.init = function(id, debug) {
         const group=`[Channel${  i+1  }]`;
         MixtrackPlatinumFX.deck[i] = new MixtrackPlatinumFX.Deck(i + 1);
         MixtrackPlatinumFX.updateRateRange(i, group, MixtrackPlatinumFX.pitchRanges[0]);
-	// refresh keylock state (the output mapping in the xml doesn't seem to do it
+        // refresh keylock state (the output mapping in the xml doesn't seem to do it
         midi.sendShortMsg(0x80 | i, 0x0D, engine.getValue(group, "keylock")?0x7F:0x00);
-        midi.sendShortMsg(0x90 | i, 0x0D, engine.getValue(group,"keylock")?0x7F:0x00);
-	// Hook into this and save the bpm_file when loaded so we can reset it later
-	engine.makeConnection(group, 'track_loaded', MixtrackPlatinumFX.trackBPM ).trigger();
+        midi.sendShortMsg(0x90 | i, 0x0D, engine.getValue(group, "keylock")?0x7F:0x00);
+        // Hook into this and save the bpm_file when loaded so we can reset it later
+        engine.makeConnection(group, "track_loaded", MixtrackPlatinumFX.trackBPM).trigger();
     }
     for (i = 0; i < 2; i++) {
         MixtrackPlatinumFX.effect[i] = new MixtrackPlatinumFX.EffectUnit((i % 2)+1);
@@ -330,30 +330,30 @@ MixtrackPlatinumFX.FxBlink = function() {
 // TODO in 2.3 it is not possible to "properly" map the FX selection buttons.
 // this should be done with load_preset and QuickEffects instead (when effect
 // chain preset saving/loading is available in Mixxx)
-MixtrackPlatinumFX.EffectUnit = function(deckNumber) {    
+MixtrackPlatinumFX.EffectUnit = function(deckNumber) {
     this.effects = [false, false, false];
     this.isSwitchHolded = false;
         
     this.updateEffects = function() {
         if (MixtrackPlatinumFX.toggleFXControlEnable) {
-            for (let i = 1; i <= this.effects.length; i++) {           
-                engine.setValue("[EffectRack1_EffectUnit${deckNumber}_Effect"+i+"]", "enabled", this.effects[i-1]); 
+            for (let i = 1; i <= this.effects.length; i++) {
+                engine.setValue(`[EffectRack1_EffectUnit\${deckNumber}_Effect${i}]`, "enabled", this.effects[i-1]);
             }
         }
-    }
+    };
     
     // switch values are:
     // 0 - switch in the middle
     // 1 - switch up
-    // 2 - switch down    
+    // 2 - switch down
     this.enableSwitch = function(channel, control, value, status, group) {
         this.isSwitchHolded = value !== 0;
 
-        if (MixtrackPlatinumFX.toggleFXControlSuper) {        
+        if (MixtrackPlatinumFX.toggleFXControlSuper) {    
             engine.setValue(group, "super1", Math.min(value, 1.0));
         }
 		
-		let fxDeck=deckNumber;
+        let fxDeck=deckNumber;
         if (!MixtrackPlatinumFX.deck[deckNumber-1].active) {
             fxDeck+=2;
         }
@@ -374,14 +374,14 @@ MixtrackPlatinumFX.EffectUnit = function(deckNumber) {
         if (value === 0x7F) {
             if (!MixtrackPlatinumFX.shifted) {
                 MixtrackPlatinumFX.allEffectOff();
-			}
+            }
             this.effects[0] = !this.effects[0];
             midi.sendShortMsg(status, control, this.effects[0] ? MixtrackPlatinumFX.HIGH_LIGHT : MixtrackPlatinumFX.LOW_LIGHT);
         }
         
         
         this.updateEffects();
-    }
+    };
     
     this.effect2 = function(channel, control, value, status, _group) {
         if (value === 0x7F) {
@@ -393,7 +393,7 @@ MixtrackPlatinumFX.EffectUnit = function(deckNumber) {
         }
         
         this.updateEffects();
-    }
+    };
     
     this.effect3 = function(channel, control, value, status, _group) {
         if (value === 0x7F) {
@@ -467,7 +467,7 @@ MixtrackPlatinumFX.activeForTap = function(value) {
     // then a playing deck = 3
     // then a stopped deck without pfl (which by this point is any loaded) = 2
     // and as a fallback a deck that isn't active
-    // if there are mulitple then the lowest number wins (1,2,3,4)
+    // if there are multiple then the lowest number wins (1,2,3,4)
     // if no decks with loaded tracks then -1 so caller should check for that
     let i=0;
     let winner=-1;
@@ -1129,9 +1129,9 @@ MixtrackPlatinumFX.ModeAutoLoop = function(deckNumber, secondaryMode) {
     components.ComponentContainer.call(this);
 
     this.name = MixtrackPlatinumFX.PadModeControls.AUTOLOOP;
-	if (secondaryMode) {
-		this.name = MixtrackPlatinumFX.PadModeControls.AUTOLOOP2;
-	}
+    if (secondaryMode) {
+        this.name = MixtrackPlatinumFX.PadModeControls.AUTOLOOP2;
+    }
     this.control = MixtrackPlatinumFX.PadModeControls.AUTOLOOP;
     this.unshiftedControl = MixtrackPlatinumFX.PadModeControls.AUTOLOOP;
     this.secondaryMode = secondaryMode;
@@ -1177,42 +1177,41 @@ MixtrackPlatinumFX.ModeCueLoop = function(deckNumber, secondaryMode) {
     if (secondaryMode) {
         this.name = MixtrackPlatinumFX.PadModeControls.AUTOLOOP3;
     }
-	//Chloe
     this.control = MixtrackPlatinumFX.PadModeControls.AUTOLOOP;
     this.unshiftedControl = MixtrackPlatinumFX.PadModeControls.AUTOLOOP;
     this.secondaryMode = secondaryMode;
     this.lightOnValue = 0x7F;
 
     this.pads = new components.ComponentContainer();
-    for (var i = 0; i < 8; i++) {
+    for (let i = 0; i < 8; i++) {
         this.pads[i] = new components.Button({
-            group: '[Channel${deckNumber}]',
+            group: "[Channel${deckNumber}]",
             midi: [0x93 + deckNumber, 0x14 + i],
             size: MixtrackPlatinumFX.autoLoopSizes[i],
             shiftControl: true,
             sendShifted: true,
             shiftOffset: 0x08,
-			keynum: i,
+            keynum: i,
             shift: function() {
-				this.input=function(channel, control, value, _status, _group) {
-					engine.setValue(this.group, "slip_enabled", value);
-					engine.setValue(this.group, "hotcue_" + (this.keynum+1) + "_activate", value);
-					engine.setValue(this.group, "beatlooproll_activate", value);
-					midi.sendShortMsg(this.midi[0], this.midi[1] + this.shiftOffset, this.outValueScale(engine.getValue(this.group, "hotcue_" + (this.keynum+1) + "_enabled")));
-				};
-				midi.sendShortMsg(this.midi[0], this.midi[1] + this.shiftOffset, this.outValueScale(engine.getValue(this.group, "hotcue_" + (this.keynum+1) + "_enabled")));
+                this.input=function(channel, control, value, _status, _group) {
+                    engine.setValue(this.group, "slip_enabled", value);
+                    engine.setValue(this.group, `hotcue_${  this.keynum+1  }_activate`, value);
+                    engine.setValue(this.group, "beatlooproll_activate", value);
+                    midi.sendShortMsg(this.midi[0], this.midi[1] + this.shiftOffset, this.outValueScale(engine.getValue(this.group, `hotcue_${  this.keynum+1  }_enabled`)));
+                };
+                midi.sendShortMsg(this.midi[0], this.midi[1] + this.shiftOffset, this.outValueScale(engine.getValue(this.group, `hotcue_${  this.keynum+1  }_enabled`)));
             },
             unshift: function() {
-				this.input=function(channel, control, value, _status, _group) {
-					if (value > 0) {
-						engine.setValue(this.group, "hotcue_" + (this.keynum+1) + "_activate", value);
-						script.triggerControl(this.group, "beatloop_activate");
-					} else {
-						engine.setValue(this.group, "hotcue_" + (this.keynum+1) + "_activate", value);
-					}
-					midi.sendShortMsg(this.midi[0], this.midi[1], this.outValueScale(engine.getValue(this.group, "hotcue_" + (this.keynum+1) + "_enabled")));
-				};
-				midi.sendShortMsg(this.midi[0], this.midi[1], this.outValueScale(engine.getValue(this.group, "hotcue_" + (this.keynum+1) + "_enabled")));
+                this.input=function(channel, control, value, _status, _group) {
+                    if (value > 0) {
+                        engine.setValue(this.group, `hotcue_${  this.keynum+1  }_activate`, value);
+                        script.triggerControl(this.group, "beatloop_activate");
+                    } else {
+                        engine.setValue(this.group, `hotcue_${  this.keynum+1  }_activate`, value);
+                    }
+                    midi.sendShortMsg(this.midi[0], this.midi[1], this.outValueScale(engine.getValue(this.group, `hotcue_${  this.keynum+1  }_enabled`)));
+                };
+                midi.sendShortMsg(this.midi[0], this.midi[1], this.outValueScale(engine.getValue(this.group, `hotcue_${  this.keynum+1  }_enabled`)));
             },
             outConnect: false
         });
@@ -1224,75 +1223,76 @@ MixtrackPlatinumFX.mykey=0;
 MixtrackPlatinumFX.ModeKeyPlay = function(deckNumber, secondaryMode) {
     components.ComponentContainer.call(this);
 
-	this.name = MixtrackPlatinumFX.PadModeControls.KEYPLAY;
+    this.name = MixtrackPlatinumFX.PadModeControls.KEYPLAY;
     this.control = MixtrackPlatinumFX.PadModeControls.SAMPLE1;
     this.unshiftedControl = MixtrackPlatinumFX.PadModeControls.SAMPLE1;
     this.secondaryMode = secondaryMode;
     this.lightOnValue = 0x7F;
 
-	this.nextRange = function () {
-		switch (this.pads.keyshiftStart) {
-			case 0:
-				this.pads.keyshiftStart=4;
-				break;
-			case 4:
-				this.pads.keyshiftStart=7;
-				break;
-			case 7:
-				this.pads.keyshiftStart=0;
-				break;
-			default:
-				this.pads.keyshiftStart=4;
-				break;
-		}
-	};
+    this.nextRange = function() {
+        switch (this.pads.keyshiftStart) {
+        case 0:
+            this.pads.keyshiftStart=4;
+            break;
+        case 4:
+            this.pads.keyshiftStart=7;
+            break;
+        case 7:
+            this.pads.keyshiftStart=0;
+            break;
+        default:
+            this.pads.keyshiftStart=4;
+            break;
+        }
+    };
 
     this.pads = new components.ComponentContainer();
-	var parentPads_ = this.pads;
-	this.pads.cueP=1;
-	this.pads.keyshiftStart=4;
-    for (var i = 0; i < 8; i++) {
+    const parentPads_ = this.pads;
+    this.pads.cueP=1;
+    this.pads.keyshiftStart=4;
+    for (let i = 0; i < 8; i++) {
         this.pads[i] = new components.Button({
-			parentPads: parentPads_,
-            group: '[Channel${deckNumber}]',
+            parentPads: parentPads_,
+            group: "[Channel${deckNumber}]",
             midi: [0x93 + deckNumber, 0x14 + i],
             shiftOffset: 0x08,
-			keynum: i,
+            keynum: i,
             shift: function() {
-				this.input=function(channel, control, value, _status, _group) {
-					if (value>0) {
-						this.parentPads.cueP=this.keynum+1;
-					}
-				};
-				this.off=components.Button.prototype.off;
-				midi.sendShortMsg(this.midi[0], this.midi[1] + this.shiftOffset, this.outValueScale(engine.getValue(this.group, "hotcue_" + (this.keynum+1) + "_enabled")));
+                this.input=function(channel, control, value, _status, _group) {
+                    if (value>0) {
+                        this.parentPads.cueP=this.keynum+1;
+                    }
+                };
+                this.off=components.Button.prototype.off;
+                midi.sendShortMsg(this.midi[0], this.midi[1] + this.shiftOffset, this.outValueScale(engine.getValue(this.group, `hotcue_${  this.keynum+1  }_enabled`)));
             },
             unshift: function() {
-				// serato has them the oposite way to how I'd expect so shift the two rows around
-				var thiskeynum=((this.keynum+4)%8);
-				this.thiskey=thiskeynum-this.parentPads.keyshiftStart;
-				this.input=function(channel, control, value, _status, _group) {
-					if (value>0) {
-						engine.setValue(this.group,"pitch_adjust",this.thiskey);
-						MixtrackPlatinumFX.mykey=this.keynum;
-						this.parentPads.forEachComponent( function(apad){ apad.output(0); } );
-						this.output(value);
-					} else {
-						if (this.keynum===MixtrackPlatinumFX.mykey) {
-							//engine.setValue(this.group,"key",engine.getValue(this.group,"file_key"));
-						}
-					}
-					engine.setValue(this.group, "hotcue_" + this.parentPads.cueP + "_activate", value);
-				};
-				this.off=thiskeynum===this.parentPads.keyshiftStart?5:components.Button.prototype.off;
-				if (engine.getValue(this.group,"pitch_adjust")===this.thiskey) {
-					this.output(0x7F);
-				} else {
-					this.output(0);
-				}
+                // serato has them the opposite way to how I'd expect so shift the two rows around
+                const thiskeynum=((this.keynum+4)%8);
+                this.thiskey=thiskeynum-this.parentPads.keyshiftStart;
+                this.input=function(channel, control, value, _status, _group) {
+                    if (value>0) {
+                        engine.setValue(this.group, "pitch_adjust", this.thiskey);
+                        MixtrackPlatinumFX.mykey=this.keynum;
+                        this.parentPads.forEachComponent(function(apad) { apad.output(0); });
+                        this.output(value);
+                    } else {
+                        if (this.keynum===MixtrackPlatinumFX.mykey) {
+                            //engine.setValue(this.group,"key",engine.getValue(this.group,"file_key"));
+                        }
+                    }
+                    engine.setValue(this.group, `hotcue_${  this.parentPads.cueP  }_activate`, value);
+                };
+                this.off=thiskeynum===this.parentPads.keyshiftStart?5:components.Button.prototype.off;
+                if (engine.getValue(this.group, "pitch_adjust")===this.thiskey) {
+                    this.output(0x7F);
+                } else {
+                    this.output(0);
+                }
             },
-			trigger: function() {
-				this.output(0);
+            trigger: function() {
+                this.output(0);
+
 			},
         });
     }
@@ -1305,33 +1305,33 @@ MixtrackPlatinumFX.ModeKeyPlay.prototype = Object.create(components.ComponentCon
 MixtrackPlatinumFX.ModeFaderCuts = function(deckNumber, secondaryMode) {
     components.ComponentContainer.call(this);
 
-	this.name = MixtrackPlatinumFX.PadModeControls.FADERCUTS;
-	if (secondaryMode===1) {
-		this.name = MixtrackPlatinumFX.PadModeControls.FADERCUTS2;
-	}
-	if (secondaryMode===2) {
-		this.name = MixtrackPlatinumFX.PadModeControls.FADERCUTS3;
-	}
+    this.name = MixtrackPlatinumFX.PadModeControls.FADERCUTS;
+    if (secondaryMode===1) {
+        this.name = MixtrackPlatinumFX.PadModeControls.FADERCUTS2;
+    }
+    if (secondaryMode===2) {
+        this.name = MixtrackPlatinumFX.PadModeControls.FADERCUTS3;
+    }
     this.control = MixtrackPlatinumFX.PadModeControls.FADERCUTS;
     this.unshiftedControl = MixtrackPlatinumFX.PadModeControls.FADERCUTS;
     this.secondaryMode = secondaryMode;
     this.lightOnValue = 0x09; // for "fader cuts" 0x09 works better than 0x7F for some reason (0x7F turns the other lamps to a bit brighter)
 
-	this.activate = function () {
-		if (this.secondaryMode===1) {
-			midi.sendSysexMsg(MixtrackPlatinumFX.faderCutSysex8, MixtrackPlatinumFX.faderCutSysex8.length);
-		} else {
-			midi.sendSysexMsg(MixtrackPlatinumFX.faderCutSysex4, MixtrackPlatinumFX.faderCutSysex4.length);
-		}
-	};
+    this.activate = function() {
+        if (this.secondaryMode===1) {
+            midi.sendSysexMsg(MixtrackPlatinumFX.faderCutSysex8, MixtrackPlatinumFX.faderCutSysex8.length);
+        } else {
+            midi.sendSysexMsg(MixtrackPlatinumFX.faderCutSysex4, MixtrackPlatinumFX.faderCutSysex4.length);
+        }
+    };
 
     // fadercut pads are controlled by hardware of firmware in this mode
-	var numFader=4;
-	if (secondaryMode===1) {
-		numFader=8;
-	}
+    let numFader=4;
+    if (secondaryMode===1) {
+        numFader=8;
+    }
     this.pads = new components.ComponentContainer();
-	var i;
+    let i;
     for (i = 0; i < numFader; i++) {
         this.pads[i] = new components.Button({
             group: '[Channel${deckNumber}]',
@@ -1350,103 +1350,74 @@ MixtrackPlatinumFX.ModeFaderCuts = function(deckNumber, secondaryMode) {
             outConnect: false,
         });
     }
-	if (secondaryMode===false) {
-		i=4;
-		this.pads[i] = new components.Button({
-			group: '[Channel${deckNumber}]',
-			midi: [0x93 + deckNumber, 0x14 + i],
-			key: "play_stutter",
-			outConnect: false,
-		});
-		i++;
-		this.pads[i] = new components.Button({
-			group: '[Channel${deckNumber}]',
-			midi: [0x93 + deckNumber, 0x14 + i],
-			key: "start",
-			outConnect: false,
-		});
-		i++;
-		this.pads[i] = new components.Button({
-			group: '[Channel${deckNumber}]',
-			midi: [0x93 + deckNumber, 0x14 + i],
-			key: "back",
-			outConnect: false,
-		});
-		i++;
-		this.pads[i] = new components.Button({
-			group: '[Channel${deckNumber}]',
-			midi: [0x93 + deckNumber, 0x14 + i],
-			key: "fwd",
-			outConnect: false,
-		});
-	}
-	if (secondaryMode===2) {
-		i=4;
-		this.pads[i] = new components.Button({
-			group: '[Channel${deckNumber}]',
-			midi: [0x93 + deckNumber, 0x14 + i],
-			key: "reverseroll",
-			outConnect: false,
-		});
-		i++;
-		this.pads[i] = new components.Button({
-			type: 2,
-			group: '[Channel${deckNumber}]',
-			midi: [0x93 + deckNumber, 0x14 + i],
-			key: "reverse",
-			outConnect: false,
-		});
-		i++;
-		this.pads[i] = new components.Button({
-			group: '[Channel${deckNumber}]',
-			midi: [0x93 + deckNumber, 0x14 + i],
-			shift: function() {
-				this.disconnect();
-				this.inKey = "reset_key";
-				this.outKey = "reset_key";
-			},
-			unshift: function() {
-				this.disconnect();
-				this.inKey = "sync_key";
-				this.outKey = "sync_key";
-			},
-			outConnect: false,
-		});
-		i++;
-		this.pads[i] = new components.Button({
-			group: '[Channel${deckNumber}]',
-			midi: [0x93 + deckNumber, 0x14 + i],
-			outConnect: false,
-			unshift: function() {
-				this.disconnect();
-				this.input = function(channel, control, value, _status, _group) { 
-					if (value>0) {
-						var prelen = bpm.tap.length;
-						var predelta = bpm.previousTapDelta;
-						bpm.tapButton(deckNumber);
-						// if the array reset, or changed then the tap was "accepted"
-						if ((bpm.tap.length===0) || (bpm.tap.length!==prelen) || predelta!==bpm.previousTapDelta) {
-							this.send(this.outValueScale(value));
-						} else {
-							this.send(0);
-						}
-					} else {
-						this.send(this.outValueScale(value));
-					}
-				};
-			},
-			shift: function() {
-				// reset rate to 0 (i.e. no tempo change)
-				this.disconnect();
-				this.input = function(channel, control, value, _status, _group) {  
-					if (value>0) {
-						engine.setValue(this.group,"rate",0);
-					}
-				};
-			},
-		});
-	}
+    if (secondaryMode===2) {
+        i=4;
+        this.pads[i] = new components.Button({
+            group: "[Channel${deckNumber}]",
+            midi: [0x93 + deckNumber, 0x14 + i],
+            key: "reverseroll",
+            outConnect: false,
+        });
+        i++;
+        this.pads[i] = new components.Button({
+            type: 2,
+            group: "[Channel${deckNumber}]",
+            midi: [0x93 + deckNumber, 0x14 + i],
+            key: "reverse",
+            outConnect: false,
+        });
+        i++;
+        this.pads[i] = new components.Button({
+            group: "[Channel${deckNumber}]",
+            midi: [0x93 + deckNumber, 0x14 + i],
+            shift: function() {
+                this.disconnect();
+                this.inKey = "reset_key";
+                this.outKey = "reset_key";
+            },
+            unshift: function() {
+                this.disconnect();
+                this.inKey = "sync_key";
+                this.outKey = "sync_key";
+            },
+            outConnect: false,
+        });
+        i++;
+        this.pads[i] = new components.Button({
+            group: "[Channel${deckNumber}]",
+            midi: [0x93 + deckNumber, 0x14 + i],
+            outConnect: false,
+            unshift: function() {
+                this.disconnect();
+                this.input = function(channel, control, value, _status, _group) {
+                    if (value>0) {
+                        const prelen = bpm.tap.length;
+                        const predelta = bpm.previousTapDelta;
+                        bpm.tapButton(deckNumber);
+                        // if the array reset, or changed then the tap was "accepted"
+                        if ((bpm.tap.length===0) || (bpm.tap.length!==prelen) || predelta!==bpm.previousTapDelta) {
+                            this.send(this.outValueScale(value));
+                        } else {
+                            this.send(0);
+                        }
+                    } else {
+                        this.send(this.outValueScale(value));
+                    }
+                };
+            },
+            shift: function() {
+                // reset rate to 0 (i.e. no tempo change)
+                this.disconnect();
+                this.input = function(channel, control, value, _status, _group) {
+                    if (value>0) {
+                        engine.setValue(this.group, "rate", 0);
+                    }
+                };
+            },
+        });
+    }
 };
+//Chloe
 MixtrackPlatinumFX.ModeFaderCuts.prototype = Object.create(components.ComponentContainer.prototype);
 
 MixtrackPlatinumFX.ModeSample = function(deckNumber, secondaryMode) {
