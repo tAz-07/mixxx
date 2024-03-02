@@ -330,86 +330,90 @@ MixtrackPlatinumFX.FxBlink = function() {
 // TODO in 2.3 it is not possible to "properly" map the FX selection buttons.
 // this should be done with load_preset and QuickEffects instead (when effect
 // chain preset saving/loading is available in Mixxx)
-MixtrackPlatinumFX.EffectUnit = function(deckNumber) {
+MixtrackPlatinumFX.EffectUnit = function(deckNumber) {    
     this.effects = [false, false, false];
     this.isSwitchHolded = false;
-
+        
     this.updateEffects = function() {
         if (MixtrackPlatinumFX.toggleFXControlEnable) {
-            for (let i = 1; i <= this.effects.length; i++) {
-                engine.setValue(`[EffectRack1_EffectUnit\" + deckNumber + "_Effect${i}]`, "enabled", this.effects[i-1]);
+            for (var i = 1; i <= this.effects.length; i++) {            
+                engine.setValue("[EffectRack1_EffectUnit" + deckNumber + "_Effect"+i+"]", "enabled", this.effects[i-1]); 
             }
         }
-    };
-
+    }
+    
     // switch values are:
     // 0 - switch in the middle
     // 1 - switch up
-    // 2 - switch down
+    // 2 - switch down    
     this.enableSwitch = function(channel, control, value, status, group) {
         this.isSwitchHolded = value !== 0;
 
-        if (MixtrackPlatinumFX.toggleFXControlSuper) {
+        if (MixtrackPlatinumFX.toggleFXControlSuper) {        
             engine.setValue(group, "super1", Math.min(value, 1.0));
         }
-
-        let fxDeck=deckNumber;
-        if (!MixtrackPlatinumFX.deck[deckNumber-1].active) {
-            fxDeck+=2;
-        }
-        engine.setValue("[EffectRack1_EffectUnit1]", `group_[Channel${  fxDeck  }]_enable`, (value !== 0));
-        engine.setValue("[EffectRack1_EffectUnit2]", `group_[Channel${  fxDeck  }]_enable`, (value !== 0));
-
+		
+		var fxDeck=deckNumber;
+		if (!MixtrackPlatinumFX.deck[deckNumber-1].active)
+		{
+			fxDeck+=2;
+		}
+		engine.setValue("[EffectRack1_EffectUnit1]", "group_[Channel" + fxDeck + "]_enable", (value !== 0));
+		engine.setValue("[EffectRack1_EffectUnit2]", "group_[Channel" + fxDeck + "]_enable", (value !== 0));
+        
         this.updateEffects();
-
-        MixtrackPlatinumFX.FxBlink();
-    };
+		
+		MixtrackPlatinumFX.FxBlink();
+    }
 
     this.dryWetKnob = new components.Pot({
         group: "[EffectRack1_EffectUnit" + deckNumber + "]",
         inKey: "mix"
     });
-
+    
     this.effect1 = function(channel, control, value, status, _group) {
         if (value === 0x7F) {
-            if (!MixtrackPlatinumFX.shifted) {
-                MixtrackPlatinumFX.allEffectOff();
-            }
+			if (!MixtrackPlatinumFX.shifted)
+			{
+				MixtrackPlatinumFX.allEffectOff();
+			}
             this.effects[0] = !this.effects[0];
             midi.sendShortMsg(status, control, this.effects[0] ? MixtrackPlatinumFX.HIGH_LIGHT : MixtrackPlatinumFX.LOW_LIGHT);
         }
-
-
+        
+        
         this.updateEffects();
-    };
-
+    }
+    
     this.effect2 = function(channel, control, value, status, _group) {
         if (value === 0x7F) {
-            if (!MixtrackPlatinumFX.shifted) {
-                MixtrackPlatinumFX.allEffectOff();
-            }
+			if (!MixtrackPlatinumFX.shifted)
+			{
+				MixtrackPlatinumFX.allEffectOff();
+			}
             this.effects[1] = !this.effects[1];
             midi.sendShortMsg(status, control, this.effects[1] ? MixtrackPlatinumFX.HIGH_LIGHT : MixtrackPlatinumFX.LOW_LIGHT);
         }
-
+        
         this.updateEffects();
-    };
-
+    }
+    
     this.effect3 = function(channel, control, value, status, _group) {
         if (value === 0x7F) {
-            if (!MixtrackPlatinumFX.shifted) {
-                MixtrackPlatinumFX.allEffectOff();
-            }
+			if (!MixtrackPlatinumFX.shifted)
+			{
+				MixtrackPlatinumFX.allEffectOff();
+			}
             this.effects[2] = !this.effects[2];
             midi.sendShortMsg(status, control, this.effects[2] ? MixtrackPlatinumFX.HIGH_LIGHT : MixtrackPlatinumFX.LOW_LIGHT);
         }
-
+        
         this.updateEffects();
-    };
-
-    // copy paste since I'm not sure if we want to handle it like this or not
+    }
+    
+	// copy paste since I'm not sure if we want to handle it like this or not
     this.effectParam = new components.Encoder({
-        group: `[EffectRack1_EffectUnit" + deckNumber + "_Effect1]`,
+        group: "[EffectRack1_EffectUnit" + deckNumber + "_Effect1]",
         shift: function() {
             this.inKey = "meta";
         },
@@ -454,6 +458,7 @@ MixtrackPlatinumFX.EffectUnit = function(deckNumber) {
         }
     });
 };
+
 
 MixtrackPlatinumFX.EffectUnit.prototype = new components.ComponentContainer();
 
