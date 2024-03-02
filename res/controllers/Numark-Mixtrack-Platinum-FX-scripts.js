@@ -1743,7 +1743,7 @@ MixtrackPlatinumFX.deckSwitch = function(channel, control, value, _status, _grou
     // Ignore the release the deck switch callback
     // called both when actually releasing the button and for the alt deck when switching
     if (value) {
-        var deck = channel;
+        const deck = channel;
         MixtrackPlatinumFX.deck[deck].setActive(value === 0x7F);
         // turn "off" the other deck
         // this can't reliably be done with the release as it also trigger for this deck when the button is released
