@@ -330,90 +330,86 @@ MixtrackPlatinumFX.FxBlink = function() {
 // TODO in 2.3 it is not possible to "properly" map the FX selection buttons.
 // this should be done with load_preset and QuickEffects instead (when effect
 // chain preset saving/loading is available in Mixxx)
-MixtrackPlatinumFX.EffectUnit = function(deckNumber) {    
+MixtrackPlatinumFX.EffectUnit = function(deckNumber) {
     this.effects = [false, false, false];
     this.isSwitchHolded = false;
         
     this.updateEffects = function() {
         if (MixtrackPlatinumFX.toggleFXControlEnable) {
-            for (var i = 1; i <= this.effects.length; i++) {            
-                engine.setValue("[EffectRack1_EffectUnit" + deckNumber + "_Effect"+i+"]", "enabled", this.effects[i-1]); 
+            for (let i = 1; i <= this.effects.length; i++) {
+                engine.setValue(`[EffectRack1_EffectUnit${  deckNumber  }_Effect${i}]`, "enabled", this.effects[i-1]);
             }
         }
-    }
+    };
     
     // switch values are:
     // 0 - switch in the middle
     // 1 - switch up
-    // 2 - switch down    
+    // 2 - switch down
     this.enableSwitch = function(channel, control, value, status, group) {
         this.isSwitchHolded = value !== 0;
 
-        if (MixtrackPlatinumFX.toggleFXControlSuper) {        
+        if (MixtrackPlatinumFX.toggleFXControlSuper) {
             engine.setValue(group, "super1", Math.min(value, 1.0));
         }
 		
-		var fxDeck=deckNumber;
-		if (!MixtrackPlatinumFX.deck[deckNumber-1].active)
-		{
-			fxDeck+=2;
-		}
-		engine.setValue("[EffectRack1_EffectUnit1]", "group_[Channel" + fxDeck + "]_enable", (value !== 0));
-		engine.setValue("[EffectRack1_EffectUnit2]", "group_[Channel" + fxDeck + "]_enable", (value !== 0));
+        let fxDeck=deckNumber;
+        if (!MixtrackPlatinumFX.deck[deckNumber-1].active) {
+            fxDeck+=2;
+        }
+        engine.setValue("[EffectRack1_EffectUnit1]", `group_[Channel${  fxDeck  }]_enable`, (value !== 0));
+        engine.setValue("[EffectRack1_EffectUnit2]", `group_[Channel${  fxDeck  }]_enable`, (value !== 0));
         
         this.updateEffects();
 		
-		MixtrackPlatinumFX.FxBlink();
-    }
+        MixtrackPlatinumFX.FxBlink();
+    };
 
     this.dryWetKnob = new components.Pot({
-        group: "[EffectRack1_EffectUnit" + deckNumber + "]",
+        group: `[EffectRack1_EffectUnit${  deckNumber  }]`,
         inKey: "mix"
     });
-    
+
     this.effect1 = function(channel, control, value, status, _group) {
         if (value === 0x7F) {
-			if (!MixtrackPlatinumFX.shifted)
-			{
-				MixtrackPlatinumFX.allEffectOff();
-			}
+            if (!MixtrackPlatinumFX.shifted) {
+                MixtrackPlatinumFX.allEffectOff();
+            }
             this.effects[0] = !this.effects[0];
             midi.sendShortMsg(status, control, this.effects[0] ? MixtrackPlatinumFX.HIGH_LIGHT : MixtrackPlatinumFX.LOW_LIGHT);
         }
-        
-        
+
+
         this.updateEffects();
-    }
+    };
     
     this.effect2 = function(channel, control, value, status, _group) {
         if (value === 0x7F) {
-			if (!MixtrackPlatinumFX.shifted)
-			{
-				MixtrackPlatinumFX.allEffectOff();
-			}
+            if (!MixtrackPlatinumFX.shifted) {
+                MixtrackPlatinumFX.allEffectOff();
+            }
             this.effects[1] = !this.effects[1];
             midi.sendShortMsg(status, control, this.effects[1] ? MixtrackPlatinumFX.HIGH_LIGHT : MixtrackPlatinumFX.LOW_LIGHT);
         }
-        
+
         this.updateEffects();
-    }
+    };
     
     this.effect3 = function(channel, control, value, status, _group) {
         if (value === 0x7F) {
-			if (!MixtrackPlatinumFX.shifted)
-			{
-				MixtrackPlatinumFX.allEffectOff();
-			}
+            if (!MixtrackPlatinumFX.shifted) {
+                MixtrackPlatinumFX.allEffectOff();
+            }
             this.effects[2] = !this.effects[2];
             midi.sendShortMsg(status, control, this.effects[2] ? MixtrackPlatinumFX.HIGH_LIGHT : MixtrackPlatinumFX.LOW_LIGHT);
         }
-        
+
         this.updateEffects();
-    }
-    
-	// copy paste since I'm not sure if we want to handle it like this or not
+    };
+
+    // copy paste since I'm not sure if we want to handle it like this or not
     this.effectParam = new components.Encoder({
-        group: "[EffectRack1_EffectUnit" + deckNumber + "_Effect1]",
+        group: `[EffectRack1_EffectUnit${  deckNumber  }_Effect1]`,
         shift: function() {
             this.inKey = "meta";
         },
@@ -428,7 +424,7 @@ MixtrackPlatinumFX.EffectUnit = function(deckNumber) {
         }
     });
     this.effectParam2 = new components.Encoder({
-        group: "[EffectRack1_EffectUnit" + deckNumber + "_Effect2]",
+        group: `[EffectRack1_EffectUnit${  deckNumber  }_Effect2]`,
         shift: function() {
             this.inKey = "meta";
         },
@@ -443,7 +439,7 @@ MixtrackPlatinumFX.EffectUnit = function(deckNumber) {
         }
     });
     this.effectParam3 = new components.Encoder({
-        group: "[EffectRack1_EffectUnit" + deckNumber + "_Effect3]",
+        group: `[EffectRack1_EffectUnit${  deckNumber  }_Effect3]`,
         shift: function() {
             this.inKey = "meta";
         },
@@ -1118,7 +1114,7 @@ MixtrackPlatinumFX.ModeHotcue = function(deckNumber, secondaryMode) {
     this.pads = new components.ComponentContainer();
     for (let i = 0; i < 8; i++) {
         this.pads[i] = new components.HotcueButton({
-            group: "[Channel" + deckNumber + "]",
+            group: `[Channel${  deckNumber  }]`,
             midi: [0x93 + deckNumber, 0x14 + i],
             number: i + 1 + offset,
             shiftControl: true,
@@ -1145,7 +1141,7 @@ MixtrackPlatinumFX.ModeAutoLoop = function(deckNumber, secondaryMode) {
     this.pads = new components.ComponentContainer();
     for (let i = 0; i < 8; i++) {
         this.pads[i] = new components.Button({
-            group: "[Channel" + deckNumber + "]",
+            group: `[Channel${  deckNumber  }]`,
             midi: [0x93 + deckNumber, 0x14 + i],
             size: MixtrackPlatinumFX.autoLoopSizes[i],
             shiftControl: true,
@@ -1190,7 +1186,7 @@ MixtrackPlatinumFX.ModeCueLoop = function(deckNumber, secondaryMode) {
     this.pads = new components.ComponentContainer();
     for (let i = 0; i < 8; i++) {
         this.pads[i] = new components.Button({
-            group: "[Channel" + deckNumber + "]",
+            group: `[Channel${  deckNumber  }]`,
             midi: [0x93 + deckNumber, 0x14 + i],
             size: MixtrackPlatinumFX.autoLoopSizes[i],
             shiftControl: true,
@@ -1258,7 +1254,7 @@ MixtrackPlatinumFX.ModeKeyPlay = function(deckNumber, secondaryMode) {
     for (let i = 0; i < 8; i++) {
         this.pads[i] = new components.Button({
             parentPads: parentPads_,
-            group: "[Channel" + deckNumber + "]",
+            group: `[Channel${  deckNumber  }]`,
             midi: [0x93 + deckNumber, 0x14 + i],
             shiftOffset: 0x08,
             keynum: i,
@@ -1339,7 +1335,7 @@ MixtrackPlatinumFX.ModeFaderCuts = function(deckNumber, secondaryMode) {
     let i;
     for (i = 0; i < numFader; i++) {
         this.pads[i] = new components.Button({
-            group: "[Channel" + deckNumber + "]",
+            group: `[Channel${  deckNumber  }]`,
             midi: [0x93 + deckNumber, 0x14 + i],
             input: function(channel, control, value, _status, _group) {
                 this.output(value);
@@ -1355,40 +1351,40 @@ MixtrackPlatinumFX.ModeFaderCuts = function(deckNumber, secondaryMode) {
             outConnect: false,
         });
     }
-	if (secondaryMode===false) {
-		i=4;
-		this.pads[i] = new components.Button({
-			group: "[Channel" + deckNumber + "]",
-			midi: [0x93 + deckNumber, 0x14 + i],
-			key: "play_stutter",
-			outConnect: false,
-		});
-		i++;
-		this.pads[i] = new components.Button({
-			group: "[Channel" + deckNumber + "]",
-			midi: [0x93 + deckNumber, 0x14 + i],
-			key: "start",
-			outConnect: false,
-		});
-		i++;
-		this.pads[i] = new components.Button({
-			group: "[Channel" + deckNumber + "]",
-			midi: [0x93 + deckNumber, 0x14 + i],
-			key: "back",
-			outConnect: false,
-		});
-		i++;
-		this.pads[i] = new components.Button({
-			group: "[Channel" + deckNumber + "]",
-			midi: [0x93 + deckNumber, 0x14 + i],
-			key: "fwd",
-			outConnect: false,
-		});
-	}
+    if (secondaryMode===false) {
+        i=4;
+        this.pads[i] = new components.Button({
+            group: `[Channel${  deckNumber  }]`,
+            midi: [0x93 + deckNumber, 0x14 + i],
+            key: "play_stutter",
+            outConnect: false,
+        });
+        i++;
+        this.pads[i] = new components.Button({
+            group: `[Channel${  deckNumber  }]`,
+            midi: [0x93 + deckNumber, 0x14 + i],
+            key: "start",
+            outConnect: false,
+        });
+        i++;
+        this.pads[i] = new components.Button({
+            group: `[Channel${  deckNumber  }]`,
+            midi: [0x93 + deckNumber, 0x14 + i],
+            key: "back",
+            outConnect: false,
+        });
+        i++;
+        this.pads[i] = new components.Button({
+            group: `[Channel${  deckNumber  }]`,
+            midi: [0x93 + deckNumber, 0x14 + i],
+            key: "fwd",
+            outConnect: false,
+        });
+    }
     if (secondaryMode===2) {
         i=4;
         this.pads[i] = new components.Button({
-            group: "[Channel" + deckNumber + "]",
+            group: `[Channel${  deckNumber  }]`,
             midi: [0x93 + deckNumber, 0x14 + i],
             key: "reverseroll",
             outConnect: false,
@@ -1396,14 +1392,14 @@ MixtrackPlatinumFX.ModeFaderCuts = function(deckNumber, secondaryMode) {
         i++;
         this.pads[i] = new components.Button({
             type: 2,
-            group: "[Channel" + deckNumber + "]",
+            group: `[Channel${  deckNumber  }]`,
             midi: [0x93 + deckNumber, 0x14 + i],
             key: "reverse",
             outConnect: false,
         });
         i++;
         this.pads[i] = new components.Button({
-            group: "[Channel" + deckNumber + "]",
+            group: `[Channel${  deckNumber  }]`,
             midi: [0x93 + deckNumber, 0x14 + i],
             shift: function() {
                 this.disconnect();
@@ -1419,7 +1415,7 @@ MixtrackPlatinumFX.ModeFaderCuts = function(deckNumber, secondaryMode) {
         });
         i++;
         this.pads[i] = new components.Button({
-            group: "[Channel" + deckNumber + "]",
+            group: `[Channel${  deckNumber  }]`,
             midi: [0x93 + deckNumber, 0x14 + i],
             outConnect: false,
             unshift: function() {
@@ -1502,7 +1498,7 @@ MixtrackPlatinumFX.ModeBeatjump = function(deckNumber, secondaryMode) {
     this.pads = new components.ComponentContainer();
     for (let i = 0; i < 8; i++) {
         this.pads[i] = new components.Button({
-            group: "[Channel" + deckNumber + "]",
+            group: `[Channel${  deckNumber  }]`,
             midi: [0x93 + deckNumber, 0x14 + i],
             size: MixtrackPlatinumFX.beatJumpValues[i],
             shiftControl: true,
