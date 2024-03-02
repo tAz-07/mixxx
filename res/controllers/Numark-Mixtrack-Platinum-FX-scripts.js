@@ -476,7 +476,7 @@ MixtrackPlatinumFX.activeForTap = function(value) {
     for (i=0; i<4; i++) {
         if (engine.getValue(`[Channel${  i+1  }]`, "track_loaded")) {
             if (MixtrackPlatinumFX.deck[i].active) {
-                // eslint-disable-next-line no-var
+//Chloe
                 var localscore=0;
                 if (engine.getValue(`[Channel${  i+1  }]`, "pfl")) {
                     if (engine.getValue(`[Channel${  i+1  }]`, "play")) {
@@ -1789,7 +1789,7 @@ MixtrackPlatinumFX.deckSwitch = function(channel, control, value, _status, _grou
         MixtrackPlatinumFX.updateArrows(true);
     }
 };
-// eslint-disable-next-line no-var
+//Chloe
 var sendSysex = function(buffer) {
     midi.sendSysexMsg(buffer, buffer.length);
 };
