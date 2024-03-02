@@ -150,7 +150,7 @@ MixtrackPlatinumFX.init = function(id, debug) {
     MixtrackPlatinumFX.id = id;
     MixtrackPlatinumFX.debug = debug;
     // print("init MixtrackPlatinumFX " + id + " debug: " + debug);
-    
+
     // disable demo lightshow
     const exitDemoSysex = [0xF0, 0x7E, 0x00, 0x06, 0x01, 0xF7];
     midi.sendSysexMsg(exitDemoSysex, exitDemoSysex.length);
@@ -211,7 +211,7 @@ MixtrackPlatinumFX.init = function(id, debug) {
     engine.makeConnection("[Channel2]", "rate", MixtrackPlatinumFX.rateCallback).trigger();
     engine.makeConnection("[Channel3]", "rate", MixtrackPlatinumFX.rateCallback).trigger();
     engine.makeConnection("[Channel4]", "rate", MixtrackPlatinumFX.rateCallback).trigger();
-	
+
     // trigger is needed to initialize lights to 0x01
     MixtrackPlatinumFX.deck.forEachComponent(function(component) {
         component.trigger();
@@ -219,7 +219,7 @@ MixtrackPlatinumFX.init = function(id, debug) {
     MixtrackPlatinumFX.effect.forEachComponent(function(component) {
         component.trigger();
     });
-    
+
     // set FX buttons init light)
     midi.sendShortMsg(0x98, 0x00, MixtrackPlatinumFX.LOW_LIGHT);
     midi.sendShortMsg(0x98, 0x01, MixtrackPlatinumFX.LOW_LIGHT);
@@ -227,16 +227,16 @@ MixtrackPlatinumFX.init = function(id, debug) {
     midi.sendShortMsg(0x99, 0x03, MixtrackPlatinumFX.LOW_LIGHT);
     midi.sendShortMsg(0x99, 0x04, MixtrackPlatinumFX.LOW_LIGHT);
     midi.sendShortMsg(0x99, 0x05, MixtrackPlatinumFX.LOW_LIGHT);
-    
+
     // since we default to active on deck 1 and 2 make sure the controller does too
     midi.sendShortMsg(0x90, 0x08, 0x7F);
     midi.sendShortMsg(0x91, 0x08, 0x7F);
-	
+
     // setup elapsed/remaining tracking
     engine.makeConnection("[Controls]", "ShowDurationRemaining", MixtrackPlatinumFX.timeElapsedCallback);
     MixtrackPlatinumFX.initComplete=true;
     MixtrackPlatinumFX.updateArrows(true);
-	
+
     MixtrackPlatinumFX.BlinkTimer = engine.beginTimer(MixtrackPlatinumFX.blinkDelay/2, MixtrackPlatinumFX.BlinkFunc);
 };
 
@@ -258,7 +258,7 @@ MixtrackPlatinumFX.shutdown = function() {
         // turn off bpm arrows
         midi.sendShortMsg(0x80 | i, 0x0A, 0x00); // down arrow off
         midi.sendShortMsg(0x80 | i, 0x09, 0x00); // up arrow off
-		
+
         MixtrackPlatinumFX.sendScreenRateMidi(i+1, 0);
         midi.sendShortMsg(0x90+i, 0x0e, 0);
         MixtrackPlatinumFX.sendScreenBpmMidi(i+1, 0);
@@ -316,7 +316,7 @@ MixtrackPlatinumFX.FxBlinkTimer=0;
 MixtrackPlatinumFX.FxBlinkState=true;
 MixtrackPlatinumFX.FxBlink = function() {
     const start = MixtrackPlatinumFX.effect[0].isSwitchHolded || MixtrackPlatinumFX.effect[1].isSwitchHolded;
-	
+
     if (start) {
         MixtrackPlatinumFX.FxBlinkState = true;
         MixtrackPlatinumFX.FxBlinkUpdateLEDs();
@@ -333,7 +333,7 @@ MixtrackPlatinumFX.FxBlink = function() {
 MixtrackPlatinumFX.EffectUnit = function(deckNumber) {
     this.effects = [false, false, false];
     this.isSwitchHolded = false;
-        
+
     this.updateEffects = function() {
         if (MixtrackPlatinumFX.toggleFXControlEnable) {
             for (let i = 1; i <= this.effects.length; i++) {
@@ -341,7 +341,7 @@ MixtrackPlatinumFX.EffectUnit = function(deckNumber) {
             }
         }
     };
-    
+
     // switch values are:
     // 0 - switch in the middle
     // 1 - switch up
@@ -352,16 +352,16 @@ MixtrackPlatinumFX.EffectUnit = function(deckNumber) {
         if (MixtrackPlatinumFX.toggleFXControlSuper) {
             engine.setValue(group, "super1", Math.min(value, 1.0));
         }
-		
+	
         let fxDeck=deckNumber;
         if (!MixtrackPlatinumFX.deck[deckNumber-1].active) {
             fxDeck+=2;
         }
         engine.setValue("[EffectRack1_EffectUnit1]", `group_[Channel${  fxDeck  }]_enable`, (value !== 0));
         engine.setValue("[EffectRack1_EffectUnit2]", `group_[Channel${  fxDeck  }]_enable`, (value !== 0));
-        
+
         this.updateEffects();
-		
+	
         MixtrackPlatinumFX.FxBlink();
     };
 
@@ -369,7 +369,7 @@ MixtrackPlatinumFX.EffectUnit = function(deckNumber) {
         group: "[EffectRack1_EffectUnit${deckNumber}]",
         inKey: "mix"
     });
-    
+
     this.effect1 = function(channel, control, value, status, _group) {
         if (value === 0x7F) {
             if (!MixtrackPlatinumFX.shifted) {
@@ -378,11 +378,11 @@ MixtrackPlatinumFX.EffectUnit = function(deckNumber) {
             this.effects[0] = !this.effects[0];
             midi.sendShortMsg(status, control, this.effects[0] ? MixtrackPlatinumFX.HIGH_LIGHT : MixtrackPlatinumFX.LOW_LIGHT);
         }
-        
-        
+
+
         this.updateEffects();
     };
-    
+
     this.effect2 = function(channel, control, value, status, _group) {
         if (value === 0x7F) {
             if (!MixtrackPlatinumFX.shifted) {
@@ -391,10 +391,10 @@ MixtrackPlatinumFX.EffectUnit = function(deckNumber) {
             this.effects[1] = !this.effects[1];
             midi.sendShortMsg(status, control, this.effects[1] ? MixtrackPlatinumFX.HIGH_LIGHT : MixtrackPlatinumFX.LOW_LIGHT);
         }
-        
+
         this.updateEffects();
     };
-    
+
     this.effect3 = function(channel, control, value, status, _group) {
         if (value === 0x7F) {
             if (!MixtrackPlatinumFX.shifted) {
@@ -403,10 +403,10 @@ MixtrackPlatinumFX.EffectUnit = function(deckNumber) {
             this.effects[2] = !this.effects[2];
             midi.sendShortMsg(status, control, this.effects[2] ? MixtrackPlatinumFX.HIGH_LIGHT : MixtrackPlatinumFX.LOW_LIGHT);
         }
-        
+
         this.updateEffects();
     };
-    
+
     // copy paste since I'm not sure if we want to handle it like this or not
     this.effectParam = new components.Encoder({
         group: `[EffectRack1_EffectUnit${deckNumber}_Effect1]`,
@@ -518,7 +518,7 @@ MixtrackPlatinumFX.Deck = function(number) {
     const deck = this;
     this.scratchModeEnabled = true;
     this.active = (number === 1 || number === 2);
-    
+
     this.setActive = function(active) {
         this.active = active;
 
@@ -527,7 +527,7 @@ MixtrackPlatinumFX.Deck = function(number) {
             this.pitch.disconnect();
         }
     };
-    
+
     this.bpm = new components.Component({
         outKey: "bpm",
         output: function(value, group, _control) {
@@ -537,7 +537,7 @@ MixtrackPlatinumFX.Deck = function(number) {
             MixtrackPlatinumFX.sendScreenBpmMidi(number, Math.round(value * 100));
         },
     });
-    
+
     this.duration = new components.Component({
         outKey: "duration",
         output: function(duration, _group, _control) {
@@ -592,11 +592,11 @@ MixtrackPlatinumFX.Deck = function(number) {
         sendShifted: true,
         shiftOffset: 0x04,
     });
-    
+
     this.playButtonbeatgrid = function(channel, control, value, status, group) {
         engine.setValue(group, "beats_translate_curpos", value?1:0);
     };
-        
+
 
     this.cueButton = new components.CueButton({
         midi: [0x90 + channel, 0x01],
@@ -755,7 +755,7 @@ MixtrackPlatinumFX.Deck = function(number) {
         inKey: "rate",
         invert: true
     });
- 
+
     this.padSection = new MixtrackPlatinumFX.PadSection(number);
 
     this.loop = new components.Button({
@@ -902,7 +902,7 @@ MixtrackPlatinumFX.PadSection = function(deckNumber) {
     components.ComponentContainer.call(this);
 
     this.blinkTimer = 0;
-	
+
     this.longPressTimer = 0;
     this.longPressMode = 0;
     this.longPressHeld = false;
@@ -966,7 +966,7 @@ MixtrackPlatinumFX.PadSection = function(deckNumber) {
                 this.longPressTimer = 0;
             }
         }
-		
+
         if (value !== 0x7F) {
             return;
         }
@@ -1743,7 +1743,6 @@ MixtrackPlatinumFX.deckSwitch = function(channel, control, value, _status, _grou
     // Ignore the release the deck switch callback
     // called both when actually releasing the button and for the alt deck when switching
     if (value) {
-        // eslint-disable-next-line no-var
         var deck = channel;
         MixtrackPlatinumFX.deck[deck].setActive(value === 0x7F);
         // turn "off" the other deck
@@ -1759,7 +1758,7 @@ MixtrackPlatinumFX.deckSwitch = function(channel, control, value, _status, _grou
         MixtrackPlatinumFX.updateArrows(true);
     }
 };
-
+// eslint-disable-next-line no-var
 var sendSysex = function(buffer) {
     midi.sendSysexMsg(buffer, buffer.length);
 };
