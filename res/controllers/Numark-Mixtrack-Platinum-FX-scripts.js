@@ -303,14 +303,14 @@ MixtrackPlatinumFX.FxBlinkUpdateLEDs = function() {
     if (!MixtrackPlatinumFX.FxBlinkState || MixtrackPlatinumFX.BlinkState) {
         newStates1=MixtrackPlatinumFX.effect[0].effects;
         newStates2=MixtrackPlatinumFX.effect[1].effects;
-	}
+    }
     midi.sendShortMsg(0x98, 0x00, newStates1[0] ? MixtrackPlatinumFX.HIGH_LIGHT:MixtrackPlatinumFX.LOW_LIGHT);
     midi.sendShortMsg(0x98, 0x01, newStates1[1] ? MixtrackPlatinumFX.HIGH_LIGHT:MixtrackPlatinumFX.LOW_LIGHT);
     midi.sendShortMsg(0x98, 0x02, newStates1[2] ? MixtrackPlatinumFX.HIGH_LIGHT:MixtrackPlatinumFX.LOW_LIGHT);
     midi.sendShortMsg(0x99, 0x03, newStates2[0] ? MixtrackPlatinumFX.HIGH_LIGHT:MixtrackPlatinumFX.LOW_LIGHT);
     midi.sendShortMsg(0x99, 0x04, newStates2[1] ? MixtrackPlatinumFX.HIGH_LIGHT:MixtrackPlatinumFX.LOW_LIGHT);
     midi.sendShortMsg(0x99, 0x05, newStates2[2] ? MixtrackPlatinumFX.HIGH_LIGHT:MixtrackPlatinumFX.LOW_LIGHT);
-}
+};
 
 MixtrackPlatinumFX.FxBlinkTimer=0;
 MixtrackPlatinumFX.FxBlinkState=true;
@@ -349,7 +349,7 @@ MixtrackPlatinumFX.EffectUnit = function(deckNumber) {
     this.enableSwitch = function(channel, control, value, status, group) {
         this.isSwitchHolded = value !== 0;
 
-        if (MixtrackPlatinumFX.toggleFXControlSuper) {    
+        if (MixtrackPlatinumFX.toggleFXControlSuper) {
             engine.setValue(group, "super1", Math.min(value, 1.0));
         }
 		
@@ -974,7 +974,7 @@ MixtrackPlatinumFX.PadSection = function(deckNumber) {
     };
 
     this.padPress = function(channel, control, value, status, group) {
-        var i = (control - 0x14) % 8;
+        const i = (control - 0x14) % 8;
         this.currentMode.pads[i].input(channel, control, value, status, group);
     };
 
@@ -1293,7 +1293,7 @@ MixtrackPlatinumFX.ModeKeyPlay = function(deckNumber, secondaryMode) {
             trigger: function() {
                 this.output(0);
 
-			},
+            },
         });
     }
 };
@@ -1334,19 +1334,19 @@ MixtrackPlatinumFX.ModeFaderCuts = function(deckNumber, secondaryMode) {
     let i;
     for (i = 0; i < numFader; i++) {
         this.pads[i] = new components.Button({
-            group: '[Channel${deckNumber}]',
+            group: "[Channel${deckNumber}]",
             midi: [0x93 + deckNumber, 0x14 + i],
-			input: function(channel, control, value, _status, _group) {
-				this.output(value);
-			},
-			trigger: function() {
-				// in "fader cuts" mode pad lights need to be disabled manually,
-				// as pads are controlled by hardware or firmware in this mode
-				// and don't have associated controls. without this, lights from
-				// previously selected mode would still be on after changing mode
-				// to "fader cuts"
-				this.output(0);
-			},
+            input: function(channel, control, value, _status, _group) {
+                this.output(value);
+            },
+            trigger: function() {
+                // in "fader cuts" mode pad lights need to be disabled manually,
+                // as pads are controlled by hardware or firmware in this mode
+                // and don't have associated controls. without this, lights from
+                // previously selected mode would still be on after changing mode
+                // to "fader cuts"
+                this.output(0);
+            },
             outConnect: false,
         });
     }
@@ -1425,12 +1425,12 @@ MixtrackPlatinumFX.ModeSample = function(deckNumber, secondaryMode) {
 
     if (!secondaryMode) {
         // samples 1-8
-		this.name = MixtrackPlatinumFX.PadModeControls.SAMPLE1;
+        this.name = MixtrackPlatinumFX.PadModeControls.SAMPLE1;
         this.control = MixtrackPlatinumFX.PadModeControls.SAMPLE1;
         this.firstSampleNumber = 1;
     } else {
         // samples 9-16
-		this.name = MixtrackPlatinumFX.PadModeControls.SAMPLE2;
+        this.name = MixtrackPlatinumFX.PadModeControls.SAMPLE2;
         this.control = MixtrackPlatinumFX.PadModeControls.SAMPLE2;
         this.unshiftedControl = MixtrackPlatinumFX.PadModeControls.SAMPLE1;
         this.firstSampleNumber = 9;
@@ -1439,7 +1439,7 @@ MixtrackPlatinumFX.ModeSample = function(deckNumber, secondaryMode) {
     this.lightOnValue = 0x7F;
 
     this.pads = new components.ComponentContainer();
-    for (var i = 0; i < 8; i++) {
+    for (let i = 0; i < 8; i++) {
         this.pads[i] = new components.SamplerButton({
             midi: [0x93 + deckNumber, 0x14 + i],
             number: this.firstSampleNumber + i,
@@ -1447,9 +1447,9 @@ MixtrackPlatinumFX.ModeSample = function(deckNumber, secondaryMode) {
             sendShifted: true,
             shiftOffset: 0x08,
             outConnect: false,
-			loaded: 0x05,
-			looping: 0x0F,
-			playing: 0x0F,
+            loaded: 0x05,
+            looping: 0x0F,
+            playing: 0x0F,
         });
     }
 };
@@ -1458,16 +1458,16 @@ MixtrackPlatinumFX.ModeSample.prototype = Object.create(components.ComponentCont
 MixtrackPlatinumFX.ModeBeatjump = function(deckNumber, secondaryMode) {
     components.ComponentContainer.call(this);
 
-	this.name = MixtrackPlatinumFX.PadModeControls.BEATJUMP;
+    this.name = MixtrackPlatinumFX.PadModeControls.BEATJUMP;
     this.control = MixtrackPlatinumFX.PadModeControls.HOTCUE;
     this.secondaryMode = secondaryMode;
     this.unshiftedControl = MixtrackPlatinumFX.PadModeControls.HOTCUE;
     this.lightOnValue = 0x7F;
 
     this.pads = new components.ComponentContainer();
-    for (var i = 0; i < 8; i++) {
+    for (let i = 0; i < 8; i++) {
         this.pads[i] = new components.Button({
-            group: '[Channel${deckNumber}]',
+            group: "[Channel${deckNumber}]",
             midi: [0x93 + deckNumber, 0x14 + i],
             size: MixtrackPlatinumFX.beatJumpValues[i],
             shiftControl: true,
@@ -1475,15 +1475,15 @@ MixtrackPlatinumFX.ModeBeatjump = function(deckNumber, secondaryMode) {
             shiftOffset: 0x08,
             shift: function() {
                 this.disconnect();
-                this.inKey = "beatjump_" + this.size + "backward";
-                this.outKey = "beatjump_" + this.size + "backward";
+                this.inKey = `beatjump_${  this.size  }backward`;
+                this.outKey = `beatjump_${  this.size  }backward`;
                 this.connect();
                 this.trigger();
             },
             unshift: function() {
                 this.disconnect();
-                this.inKey = "beatjump_" + this.size + "forward";
-                this.outKey = "beatjump_" + this.size + "forward";
+                this.inKey = `beatjump_${  this.size  }forward`;
+                this.outKey = `beatjump_${  this.size  }forward`;
                 this.connect();
                 this.trigger();
             },
@@ -1495,44 +1495,40 @@ MixtrackPlatinumFX.ModeBeatjump.prototype = Object.create(components.ComponentCo
 
 MixtrackPlatinumFX.Browse = function() {
     this.knob = new components.Encoder({
-		speed: 0,
-		speedTimer: 0,
+        speed: 0,
+        speedTimer: 0,
         shiftControl: true,
         shiftOffset: 0x01,
         input: function(channel, control, value) {
-            var direction;
+            let direction;
             if (MixtrackPlatinumFX.shifted && MixtrackPlatinumFX.shiftBrowseIsZoom) {
-				direction = (value > 0x40) ? "up" : "down";
-				engine.setParameter("[Channel1]", "waveform_zoom_" + direction, 1);
+                direction = (value > 0x40) ? "up" : "down";
+                engine.setParameter("[Channel1]", `waveform_zoom_${  direction}`, 1);
 
-				// need to zoom both channels if waveform sync is disabled in Mixxx settings.
-				// and when it's enabled then no need to zoom 2nd channel, as it will cause
-				// the zoom to jump 2 levels at once
-				if (!MixtrackPlatinumFX.waveformsSynced) {
-					engine.setParameter("[Channel2]", "waveform_zoom_" + direction, 1);
-				}
-			} else {
-				if (this.speedTimer !== 0) {
-					engine.stopTimer(this.speedTimer);
-					this.speedTimer = 0;
-				}
-				this.speedTimer = engine.beginTimer(100, function() {
-					this.speed=0;
-					this.speedTimer = 0;
-				}, true);
-				this.speed++;
+                // need to zoom both channels if waveform sync is disabled in Mixxx settings.
+                // and when it's enabled then no need to zoom 2nd channel, as it will cause
+                // the zoom to jump 2 levels at once
+                if (!MixtrackPlatinumFX.waveformsSynced) {
+                    engine.setParameter("[Channel2]", `waveform_zoom_${  direction}`, 1);
+                }
+            } else {
+                if (this.speedTimer !== 0) {
+                    engine.stopTimer(this.speedTimer);
+                    this.speedTimer = 0;
+                }
+                this.speedTimer = engine.beginTimer(100, function() {
+                    this.speed=0;
+                    this.speedTimer = 0;
+                }, true);
+                this.speed++;
                 direction = (value > 0x40) ? value - 0x80 : value;
-				if (MixtrackPlatinumFX.shifted)
-				{
-					// when shifted go fast (consecutive squared!)
-					direction *= this.speed*this.speed;
-				}
-				else
-				{
-					// normal, up to 3 consecutive do one for fine control, then speed up
-					if (this.speed>3)
-						direction *= Math.min(4,(this.speed-3));
-				}
+                if (MixtrackPlatinumFX.shifted) {
+                    // when shifted go fast (consecutive squared!)
+                    direction *= this.speed*this.speed;
+                } else {
+                    // normal, up to 3 consecutive do one for fine control, then speed up
+                    if (this.speed>3) { direction *= Math.min(4, (this.speed-3)); }
+                }
                 engine.setParameter("[Library]", "MoveVertical", direction);
             }
         }
@@ -1542,27 +1538,27 @@ MixtrackPlatinumFX.Browse = function() {
         group: "[Library]",
         shiftControl: true,
         shiftOffset: 0x01,
-		previewing: false,
+        previewing: false,
         shift: function() {
             this.inKey = "GoToItem";
-			this.input = function(channel, control, value, _status, _group) {
-				if (value>0) {
-					if (MixtrackPlatinumFX.rightShift) {
-						if (this.previewing) {
-							script.triggerControl('[PreviewDeck1]', 'stop');
-							this.previewing = false;
-						} else {
-							script.triggerControl('[PreviewDeck1]', 'LoadSelectedTrackAndPlay');
-							this.previewing = true;
-						}
-					} else {
-						script.triggerControl('[Library]', 'GoToItem');
-					}
-				}
-			};
+            this.input = function(channel, control, value, _status, _group) {
+                if (value>0) {
+                    if (MixtrackPlatinumFX.rightShift) {
+                        if (this.previewing) {
+                            script.triggerControl("[PreviewDeck1]", "stop");
+                            this.previewing = false;
+                        } else {
+                            script.triggerControl("[PreviewDeck1]", "LoadSelectedTrackAndPlay");
+                            this.previewing = true;
+                        }
+                    } else {
+                        script.triggerControl("[Library]", "GoToItem");
+                    }
+                }
+            };
         },
         unshift: function() {
-			this.input = components.Button.prototype.input;
+            this.input = components.Button.prototype.input;
             this.inKey = "MoveFocusForward";
         }
     });
@@ -1578,24 +1574,24 @@ MixtrackPlatinumFX.Gains = function() {
     this.cueGain = new components.Pot({
         group: "[Master]",
         inKey: "headGain",
-		shift: function() {
-			this.disconnect();
-			this.group = "[Sampler1]";
-			this.inKey = "pregain";
-			this.input = function(channel, control, value, _status, _group) {
-						var newValue = this.inValueScale(value);
-						for (var i=1 ; i<=16 ; i++) {
-							engine.setParameter("[Sampler" + i + "]", "pregain", newValue);
-						}
-					};
-		},
-		unshift: function() {
-			this.disconnect();
-			this.firstValueReceived=false;
-			this.group = "[Master]";
-			this.inKey = "headGain";
-			this.input = components.Pot.prototype.input;
-		},
+        shift: function() {
+            this.disconnect();
+            this.group = "[Sampler1]";
+            this.inKey = "pregain";
+            this.input = function(channel, control, value, _status, _group) {
+                const newValue = this.inValueScale(value);
+                for (let i=1; i<=16; i++) {
+                    engine.setParameter(`[Sampler${  i  }]`, "pregain", newValue);
+                }
+            };
+        },
+        unshift: function() {
+            this.disconnect();
+            this.firstValueReceived=false;
+            this.group = "[Master]";
+            this.inKey = "headGain";
+            this.input = components.Pot.prototype.input;
+        },
     });
 
     this.cueMix = new components.Pot({
@@ -1606,13 +1602,13 @@ MixtrackPlatinumFX.Gains = function() {
 MixtrackPlatinumFX.Gains.prototype = new components.ComponentContainer();
 
 MixtrackPlatinumFX.vuCallback = function(value, group) {
-    var level = value * 90;
-    var deckOffset = script.deckFromGroup(group) - 1;
+    const level = value * 90;
+    const deckOffset = script.deckFromGroup(group) - 1;
     midi.sendShortMsg(0xB0 + deckOffset, 0x1F, level);
 };
 
 MixtrackPlatinumFX.wheelTouch = function(channel, control, value) {
-    var deckNumber = channel + 1;
+    const deckNumber = channel + 1;
 
     if (!MixtrackPlatinumFX.shifted && MixtrackPlatinumFX.deck[channel].scratchModeEnabled && value === 0x7F) {
         // touch start
@@ -1625,9 +1621,9 @@ MixtrackPlatinumFX.wheelTouch = function(channel, control, value) {
 };
 
 MixtrackPlatinumFX.wheelTurn = function(channel, control, value, status, group) {
-    var deckNumber = channel + 1;
+    const deckNumber = channel + 1;
 
-    var newValue = value;
+    let newValue = value;
 
     if (value >= 64) {
         // correct the value if going backwards
@@ -1636,7 +1632,7 @@ MixtrackPlatinumFX.wheelTurn = function(channel, control, value, status, group) 
 
     if (MixtrackPlatinumFX.shifted) {
         // seek
-        var oldPos = engine.getValue(group, "playposition");
+        const oldPos = engine.getValue(group, "playposition");
 
         engine.setValue(group, "playposition", oldPos + newValue / MixtrackPlatinumFX.jogSeekSensitivity);
     } else if (MixtrackPlatinumFX.deck[channel].scratchModeEnabled && engine.isScratching(deckNumber)) {
@@ -1652,7 +1648,7 @@ MixtrackPlatinumFX.timeElapsedCallback = function(value, _group, _control) {
     // 0 = elapsed
     // 1 = remaining
     // 2 = both (we ignore this as the controller can't show both)
-    var onoff;
+    let onoff;
     if (value === 0) {
         // show elapsed
         onoff = 0x00;
@@ -1676,7 +1672,7 @@ MixtrackPlatinumFX.timeMs = function(deck, position, duration) {
 };
 
 MixtrackPlatinumFX.encodeNumToArray = function(number, drop, unsigned) {
-    var numberarray = [
+    const numberarray = [
         (number >> 28) & 0x0F,
         (number >> 24) & 0x0F,
         (number >> 20) & 0x0F,
@@ -1691,8 +1687,7 @@ MixtrackPlatinumFX.encodeNumToArray = function(number, drop, unsigned) {
         numberarray.splice(0, drop);
     }
 
-    if (number < 0) numberarray[0] = 0x07;
-    else if (!unsigned) numberarray[0] = 0x08;
+    if (number < 0) { numberarray[0] = 0x07; } else if (!unsigned) { numberarray[0] = 0x08; }
 
     return numberarray;
 };
@@ -1701,154 +1696,152 @@ MixtrackPlatinumFX.sendScreenDurationMidi = function(deck, duration) {
     if (duration < 1) {
         duration = 1;
     }
-    var durationArray = MixtrackPlatinumFX.encodeNumToArray(duration - 1);
+    const durationArray = MixtrackPlatinumFX.encodeNumToArray(duration - 1);
 
-    var bytePrefix = [0xF0, 0x00, 0x20, 0x7F, deck, 0x03];
-    var bytePostfix = [0xF7];
-    var byteArray = bytePrefix.concat(durationArray, bytePostfix);
+    const bytePrefix = [0xF0, 0x00, 0x20, 0x7F, deck, 0x03];
+    const bytePostfix = [0xF7];
+    const byteArray = bytePrefix.concat(durationArray, bytePostfix);
     midi.sendSysexMsg(byteArray, byteArray.length);
 };
 
 MixtrackPlatinumFX.sendScreenTimeMidi = function(deck, time) {
-    var timeArray = MixtrackPlatinumFX.encodeNumToArray(time);
+    const timeArray = MixtrackPlatinumFX.encodeNumToArray(time);
 
-    var bytePrefix = [0xF0, 0x00, 0x20, 0x7F, deck, 0x04];
-    var bytePostfix = [0xF7];
-    var byteArray = bytePrefix.concat(timeArray, bytePostfix);
+    const bytePrefix = [0xF0, 0x00, 0x20, 0x7F, deck, 0x04];
+    const bytePostfix = [0xF7];
+    const byteArray = bytePrefix.concat(timeArray, bytePostfix);
     midi.sendSysexMsg(byteArray, byteArray.length);
 };
 
 MixtrackPlatinumFX.sendScreenBpmMidi = function(deck, bpm) {
-    var bpmArray = MixtrackPlatinumFX.encodeNumToArray(bpm);
+    const bpmArray = MixtrackPlatinumFX.encodeNumToArray(bpm);
     bpmArray.shift();
     bpmArray.shift();
 
-    var bytePrefix = [0xF0, 0x00, 0x20, 0x7F, deck, 0x01];
-    var bytePostfix = [0xF7];
-    var byteArray = bytePrefix.concat(bpmArray, bytePostfix);
+    const bytePrefix = [0xF0, 0x00, 0x20, 0x7F, deck, 0x01];
+    const bytePostfix = [0xF7];
+    const byteArray = bytePrefix.concat(bpmArray, bytePostfix);
     midi.sendSysexMsg(byteArray, byteArray.length);
 	
-	MixtrackPlatinumFX.updateArrows();
+    MixtrackPlatinumFX.updateArrows();
 };
 
 MixtrackPlatinumFX.rightShift=false;
-MixtrackPlatinumFX.shiftToggle = function (channel, control, value, status, _group) {
+MixtrackPlatinumFX.shiftToggle = function(channel, control, value, status, _group) {
     if (value === 0x7F) {
-		if (status===0x91 || status===0x93) {
-			MixtrackPlatinumFX.rightShift=true;
-		}
+        if (status===0x91 || status===0x93) {
+            MixtrackPlatinumFX.rightShift=true;
+        }
         MixtrackPlatinumFX.shift();
     } else {
-		MixtrackPlatinumFX.rightShift=false;
+        MixtrackPlatinumFX.rightShift=false;
         MixtrackPlatinumFX.unshift();
     }
 };
 
-MixtrackPlatinumFX.deckSwitch = function (channel, control, value, _status, _group) {
-	// Ignore the release the deck switch callback
-	// called both when actually releasing the button and for the alt deck when switching
-	if (value)
-	{
-		// eslint-disable-next-line no-var
-		var deck = channel;
-		MixtrackPlatinumFX.deck[deck].setActive(value === 0x7F); 
-		// turn "off" the other deck
-		// this can't reliably be done with the release as it also trigger for this deck when the button is released
-		var other = 4-deck;
-		if (deck===0 || deck===2)
-			other = 2-deck;
-		MixtrackPlatinumFX.deck[other].setActive(false); 
-		// also zero vu meters
-		if (value === 0x7F) {
-			midi.sendShortMsg(0xBF, 0x44, 0);
-			midi.sendShortMsg(0xBF, 0x45, 0);
-		}
-		MixtrackPlatinumFX.updateArrows(true);
-	}
+MixtrackPlatinumFX.deckSwitch = function(channel, control, value, _status, _group) {
+    // Ignore the release the deck switch callback
+    // called both when actually releasing the button and for the alt deck when switching
+    if (value) {
+        // eslint-disable-next-line no-var
+        var deck = channel;
+        MixtrackPlatinumFX.deck[deck].setActive(value === 0x7F);
+        // turn "off" the other deck
+        // this can't reliably be done with the release as it also trigger for this deck when the button is released
+        let other = 4-deck;
+        if (deck===0 || deck===2) { other = 2-deck; }
+        MixtrackPlatinumFX.deck[other].setActive(false);
+        // also zero vu meters
+        if (value === 0x7F) {
+            midi.sendShortMsg(0xBF, 0x44, 0);
+            midi.sendShortMsg(0xBF, 0x45, 0);
+        }
+        MixtrackPlatinumFX.updateArrows(true);
+    }
 };
 
 var sendSysex = function(buffer) {
     midi.sendSysexMsg(buffer, buffer.length);
-}
+};
 
 MixtrackPlatinumFX.sendScreenRateMidi = function(deck, rate) {
-    var rateArray = MixtrackPlatinumFX.encodeNumToArray(rate, 2);
+    const rateArray = MixtrackPlatinumFX.encodeNumToArray(rate, 2);
 
-    var bytePrefix = [0xF0, 0x00, 0x20, 0x7F, deck, 0x02];
-    var bytePostfix = [0xF7];
-    var byteArray = bytePrefix.concat(rateArray, bytePostfix);
+    const bytePrefix = [0xF0, 0x00, 0x20, 0x7F, deck, 0x02];
+    const bytePostfix = [0xF7];
+    const byteArray = bytePrefix.concat(rateArray, bytePostfix);
     sendSysex(byteArray);
 };
 
 // arrow data state (and cache to prevent midi spam)
 MixtrackPlatinumFX.arrowsData = {
-	arrowsUpdateOn	:true,
-	uparrow			:[0,0,0,0],
-	downarrow		:[0,0,0,0],
+    arrowsUpdateOn: true,
+    uparrow: [0, 0, 0, 0],
+    downarrow: [0, 0, 0, 0],
 };
 
 // force refresh turns arrow behaviour back to normal, and forces a refresh bypressing the cache
 // force show turns both arrows on and suspends normal operation
 MixtrackPlatinumFX.updateArrows = function(forceRefresh, forceShow, deck) {
-	if (!MixtrackPlatinumFX.initComplete) {
-		return;
-	}
-	
-	if (forceShow) {
-		// both arrows on to indicate the deck we are tapping
-		midi.sendShortMsg(0x80 | deck, 0x0A, 1);
-		midi.sendShortMsg(0x80 | deck, 0x09, 1);
-		// and stop other updates changing them
-		MixtrackPlatinumFX.arrowsData.arrowsUpdateOn=false;
-	} else {
-		if (forceRefresh) {
-			MixtrackPlatinumFX.arrowsData.arrowsUpdateOn=true;
-		}
-		if (MixtrackPlatinumFX.arrowsData.arrowsUpdateOn) {
-			var activeA = MixtrackPlatinumFX.deck[0].active ? 0 : 2;
-			var activeB = MixtrackPlatinumFX.deck[1].active ? 1 : 3;
+    if (!MixtrackPlatinumFX.initComplete) {
+        return;
+    }
 
-			var bpmA = engine.getValue("[Channel" + (activeA+1) + "]", "bpm");
-			var bpmB = engine.getValue("[Channel" + (activeB+1) + "]", "bpm");
+    if (forceShow) {
+        // both arrows on to indicate the deck we are tapping
+        midi.sendShortMsg(0x80 | deck, 0x0A, 1);
+        midi.sendShortMsg(0x80 | deck, 0x09, 1);
+        // and stop other updates changing them
+        MixtrackPlatinumFX.arrowsData.arrowsUpdateOn=false;
+    } else {
+        if (forceRefresh) {
+            MixtrackPlatinumFX.arrowsData.arrowsUpdateOn=true;
+        }
+        if (MixtrackPlatinumFX.arrowsData.arrowsUpdateOn) {
+            const activeA = MixtrackPlatinumFX.deck[0].active ? 0 : 2;
+            const activeB = MixtrackPlatinumFX.deck[1].active ? 1 : 3;
 
-			var i;
-			for (i=0;i<4;i++) {
-				var bpmMy = engine.getValue("[Channel" + (i+1) + "]", "bpm");
-				var bpmAlt = bpmA;
-				if (i===0 || i===2) {
-					bpmAlt = bpmB;
-				}
-				
-				var down=0;
-				var up=0;
-				
-				// only display if both decks have a bpm
-				if (bpmAlt && bpmMy) {
-					// and have a 0.05 bpm tolerance (else they only go off when you use sync)
-					if (bpmAlt>(bpmMy+0.05)) {
-						down=1;
-					}
-					if (bpmAlt<(bpmMy-0.05)) {
-						up=1;
-					}
-				}
+            const bpmA = engine.getValue(`[Channel${  activeA+1  }]`, "bpm");
+            const bpmB = engine.getValue(`[Channel${  activeB+1  }]`, "bpm");
 
-				if (forceRefresh || MixtrackPlatinumFX.arrowsData.downarrow[i]!==down) {
-					MixtrackPlatinumFX.arrowsData.downarrow[i]=down;
-					midi.sendShortMsg(0x80 | i, 0x0A, down); // down arrow update
-				}
-				if (forceRefresh || MixtrackPlatinumFX.arrowsData.uparrow[i]!==up) {
-					MixtrackPlatinumFX.arrowsData.uparrow[i]=up;
-					midi.sendShortMsg(0x80 | i, 0x09, up); // up arrow update
-				}
-			}
-		}
-	}
+            let i;
+            for (i=0; i<4; i++) {
+                const bpmMy = engine.getValue(`[Channel${  i+1  }]`, "bpm");
+                let bpmAlt = bpmA;
+                if (i===0 || i===2) {
+                    bpmAlt = bpmB;
+                }
+
+                let down=0;
+                let up=0;
+
+                // only display if both decks have a bpm
+                if (bpmAlt && bpmMy) {
+                    // and have a 0.05 bpm tolerance (else they only go off when you use sync)
+                    if (bpmAlt>(bpmMy+0.05)) {
+                        down=1;
+                    }
+                    if (bpmAlt<(bpmMy-0.05)) {
+                        up=1;
+                    }
+                }
+
+                if (forceRefresh || MixtrackPlatinumFX.arrowsData.downarrow[i]!==down) {
+                    MixtrackPlatinumFX.arrowsData.downarrow[i]=down;
+                    midi.sendShortMsg(0x80 | i, 0x0A, down); // down arrow update
+                }
+                if (forceRefresh || MixtrackPlatinumFX.arrowsData.uparrow[i]!==up) {
+                    MixtrackPlatinumFX.arrowsData.uparrow[i]=up;
+                    midi.sendShortMsg(0x80 | i, 0x09, up); // up arrow update
+                }
+            }
+        }
+    }
 };
 
 MixtrackPlatinumFX.rateCallback = function(rate, group, _control)  {
-    var channel = script.deckFromGroup(group) - 1;
-    var rateEffective = engine.getValue(group, "rateRange") * -rate;
+    const channel = script.deckFromGroup(group) - 1;
+    const rateEffective = engine.getValue(group, "rateRange") * -rate;
 
     MixtrackPlatinumFX.sendScreenRateMidi(channel+1, Math.round(rateEffective*10000));
 };
