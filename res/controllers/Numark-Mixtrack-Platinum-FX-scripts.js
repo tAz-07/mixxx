@@ -333,7 +333,7 @@ MixtrackPlatinumFX.FxBlink = function() {
 MixtrackPlatinumFX.EffectUnit = function(deckNumber) {
     this.effects = [false, false, false];
     this.isSwitchHolded = false;
-        
+
     this.updateEffects = function() {
         if (MixtrackPlatinumFX.toggleFXControlEnable) {
             for (let i = 1; i <= this.effects.length; i++) {
@@ -341,7 +341,7 @@ MixtrackPlatinumFX.EffectUnit = function(deckNumber) {
             }
         }
     };
-    
+
     // switch values are:
     // 0 - switch in the middle
     // 1 - switch up
@@ -352,16 +352,16 @@ MixtrackPlatinumFX.EffectUnit = function(deckNumber) {
         if (MixtrackPlatinumFX.toggleFXControlSuper) {
             engine.setValue(group, "super1", Math.min(value, 1.0));
         }
-		
+
         let fxDeck=deckNumber;
         if (!MixtrackPlatinumFX.deck[deckNumber-1].active) {
             fxDeck+=2;
         }
         engine.setValue("[EffectRack1_EffectUnit1]", `group_[Channel${  fxDeck  }]_enable`, (value !== 0));
         engine.setValue("[EffectRack1_EffectUnit2]", `group_[Channel${  fxDeck  }]_enable`, (value !== 0));
-        
+
         this.updateEffects();
-		
+
         MixtrackPlatinumFX.FxBlink();
     };
 
@@ -382,7 +382,7 @@ MixtrackPlatinumFX.EffectUnit = function(deckNumber) {
 
         this.updateEffects();
     };
-    
+
     this.effect2 = function(channel, control, value, status, _group) {
         if (value === 0x7F) {
             if (!MixtrackPlatinumFX.shifted) {
@@ -394,7 +394,7 @@ MixtrackPlatinumFX.EffectUnit = function(deckNumber) {
 
         this.updateEffects();
     };
-    
+
     this.effect3 = function(channel, control, value, status, _group) {
         if (value === 0x7F) {
             if (!MixtrackPlatinumFX.shifted) {
