@@ -352,7 +352,7 @@ MixtrackPlatinumFX.EffectUnit = function(deckNumber) {
         if (MixtrackPlatinumFX.toggleFXControlSuper) {
             engine.setValue(group, "super1", Math.min(value, 1.0));
         }
-	
+
         let fxDeck=deckNumber;
         if (!MixtrackPlatinumFX.deck[deckNumber-1].active) {
             fxDeck+=2;
@@ -361,7 +361,7 @@ MixtrackPlatinumFX.EffectUnit = function(deckNumber) {
         engine.setValue("[EffectRack1_EffectUnit2]", `group_[Channel${  fxDeck  }]_enable`, (value !== 0));
 
         this.updateEffects();
-	
+
         MixtrackPlatinumFX.FxBlink();
     };
 
@@ -1722,7 +1722,7 @@ MixtrackPlatinumFX.sendScreenBpmMidi = function(deck, bpm) {
     const bytePostfix = [0xF7];
     const byteArray = bytePrefix.concat(bpmArray, bytePostfix);
     midi.sendSysexMsg(byteArray, byteArray.length);
-	
+
     MixtrackPlatinumFX.updateArrows();
 };
 
