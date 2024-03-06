@@ -845,8 +845,22 @@ MixtrackPlatinumFX.Deck = function(number) {
                 }
                 deck.scratchModeEnabled = !deck.scratchModeEnabled;
 
+    var current_setting = engine.getValue('[Controls]', 'ShowDurationRemaining');
+    if (current_setting === 0) {
+        // currently showing elapsed, set to remaining
+        engine.setValue('[Controls]', 'ShowDurationRemaining', 1);
+    } else if (current_setting === 1) {
+        // currently showing remaining, set to elapsed
+        engine.setValue('[Controls]', 'ShowDurationRemaining', 0);
+    } else {
+        // currently showing both (that means we are showing remaining, set to elapsed
+        engine.setValue('[Controls]', 'ShowDurationRemaining', 0);
+    }
+
                 // change the scratch mode status light
                 this.send(deck.scratchModeEnabled ? this.on : this.off);
+
+
             };
             // set current scratch mode status light
             this.send(deck.scratchModeEnabled ? this.on : this.off);
