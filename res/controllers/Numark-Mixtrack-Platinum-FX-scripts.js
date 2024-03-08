@@ -594,8 +594,8 @@ MixtrackPlatinumFX.Deck = function(number) {
     });
 
     // MixtrackPlatinumFX.elapsedToggle
-    this.playButtonbeatgrid = function(channel, control, value, status, group) {
-        if (value != 0x7F) { return; }
+    this.playButtonbeatgrid = function(channel, control, value, _status, _group) {
+        if (value !== 0x7F) { return; }
 
         const currentsetting = engine.getValue("[Controls]", "ShowDurationRemaining");
         if (currentsetting === 0) {
