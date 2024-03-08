@@ -593,22 +593,21 @@ MixtrackPlatinumFX.Deck = function(number) {
         shiftOffset: 0x04,
     });
 
-// MixtrackPlatinumFX.elapsedToggle
+    // MixtrackPlatinumFX.elapsedToggle
     this.playButtonbeatgrid = function(channel, control, value, status, group) {
-    if (value != 0x7F) return;
+        if (value != 0x7F) { return; }
 
-               const currentsetting = engine.getValue("[Controls]", "ShowDurationRemaining");
-                if (currentsetting === 0) {
-                    // currently showing elapsed, set to remaining
-                    engine.setValue("[Controls]", "ShowDurationRemaining", 1);
-                } else if (currentsetting === 1) {
-                    // currently showing remaining, set to elapsed
-                    engine.setValue("[Controls]", "ShowDurationRemaining", 0);
-                } else {
-                    // currently showing both (that means we are showing remaining, set to elapsed
-                    engine.setValue("[Controls]", "ShowDurationRemaining", 0);
-                }
-
+        const currentsetting = engine.getValue("[Controls]", "ShowDurationRemaining");
+        if (currentsetting === 0) {
+            // currently showing elapsed, set to remaining
+            engine.setValue("[Controls]", "ShowDurationRemaining", 1);
+        } else if (currentsetting === 1) {
+            // currently showing remaining, set to elapsed
+            engine.setValue("[Controls]", "ShowDurationRemaining", 0);
+        } else {
+            // currently showing both (that means we are showing remaining, set to elapsed
+            engine.setValue("[Controls]", "ShowDurationRemaining", 0);
+        }
 
     };
 
