@@ -263,7 +263,7 @@ MixtrackPlatinumFX.shutdown = function() {
         midi.sendShortMsg(0x90+i, 0x0e, 0);
         MixtrackPlatinumFX.sendScreenBpmMidi(i+1, 0);
         MixtrackPlatinumFX.sendScreenTimeMidi(i+1, 0);
-        MixtrackPlatinumFX.sendScreenDurationMidi(i+1, 0);
+        MixtrackPlatinumFX.sendScreenDurationMidi(i+1, 2);
     }
 
     // switch to decks 1 and 2
@@ -593,8 +593,23 @@ MixtrackPlatinumFX.Deck = function(number) {
         shiftOffset: 0x04,
     });
 
+// MixtrackPlatinumFX.elapsedToggle
     this.playButtonbeatgrid = function(channel, control, value, status, group) {
-        engine.setValue(group, "beats_translate_curpos", value?1:0);
+    if (value != 0x7F) return;
+
+               const currentsetting = engine.getValue("[Controls]", "ShowDurationRemaining");
+                if (currentsetting === 0) {
+                    // currently showing elapsed, set to remaining
+                    engine.setValue("[Controls]", "ShowDurationRemaining", 1);
+                } else if (currentsetting === 1) {
+                    // currently showing remaining, set to elapsed
+                    engine.setValue("[Controls]", "ShowDurationRemaining", 0);
+                } else {
+                    // currently showing both (that means we are showing remaining, set to elapsed
+                    engine.setValue("[Controls]", "ShowDurationRemaining", 0);
+                }
+
+
     };
 
 
@@ -845,17 +860,6 @@ MixtrackPlatinumFX.Deck = function(number) {
                 }
                 deck.scratchModeEnabled = !deck.scratchModeEnabled;
 
-                const currentsetting = engine.getValue("[Controls]", "ShowDurationRemaining");
-                if (currentsetting === 0) {
-                    // currently showing elapsed, set to remaining
-                    engine.setValue("[Controls]", "ShowDurationRemaining", 1);
-                } else if (currentsetting === 1) {
-                    // currently showing remaining, set to elapsed
-                    engine.setValue("[Controls]", "ShowDurationRemaining", 0);
-                } else {
-                    // currently showing both (that means we are showing remaining, set to elapsed
-                    engine.setValue("[Controls]", "ShowDurationRemaining", 0);
-                }
 
                 // change the scratch mode status light
                 this.send(deck.scratchModeEnabled ? this.on : this.off);
@@ -1687,6 +1691,7 @@ MixtrackPlatinumFX.wheelTurn = function(channel, control, value, status, group) 
         engine.setValue(group, "jog", newValue / MixtrackPlatinumFX.jogPitchSensitivity);
     }
 };
+
 
 MixtrackPlatinumFX.timeElapsedCallback = function(value, _group, _control) {
     // 0 = elapsed
