@@ -31,6 +31,9 @@ MixtrackPlatinumFX.jogScratchBeta = 1/32;
 MixtrackPlatinumFX.jogPitchSensitivity = 10;
 MixtrackPlatinumFX.jogSeekSensitivity = 10000;
 
+// Jog wheel loop adjust sensitivity
+MixtrackPlatinumFX.loopAdjustMultiply = 4;
+
 // blink settings
 MixtrackPlatinumFX.enableBlink = true;
 MixtrackPlatinumFX.blinkDelay = 700;
@@ -237,8 +240,16 @@ MixtrackPlatinumFX.init = function(id, debug) {
     MixtrackPlatinumFX.initComplete=true;
     MixtrackPlatinumFX.updateArrows(true);
 
+    // The above doesn't work with my Mixxx.
+    // Force remaining time display here
+    midi.sendShortMsg(0x90, 0x46, 0x7F);
+    midi.sendShortMsg(0x91, 0x46, 0x7F);
+    midi.sendShortMsg(0x92, 0x46, 0x7F);
+    midi.sendShortMsg(0x93, 0x46, 0x7F);
+
     MixtrackPlatinumFX.BlinkTimer = engine.beginTimer(MixtrackPlatinumFX.blinkDelay/2, MixtrackPlatinumFX.BlinkFunc);
 };
+
 
 MixtrackPlatinumFX.shutdown = function() {
     const shutdownSysex = [0xF0, 0x00, 0x20, 0x7F, 0x02, 0xF7];
@@ -1663,6 +1674,16 @@ MixtrackPlatinumFX.wheelTurn = function(channel, control, value, status, group) 
     }
 
     if (MixtrackPlatinumFX.shifted) {
+	// jogwheel loop end adjust
+	let newValEnd = value - 64;
+	newValEnd = -newValEnd;
+	const loopEnabled = engine.getValue(group, "loop_enabled");
+	if (loopEnabled > 0) {
+	    newValEnd = newValEnd * MixtrackPlatinumFX.loopAdjustMultiply + engine.getValue(group, "loop_end_position");
+	    engine.setValue(group, "loop_end_position", newValEnd);
+	    return;
+	    }
+		
         // seek
         const oldPos = engine.getValue(group, "playposition");
 
@@ -1674,6 +1695,7 @@ MixtrackPlatinumFX.wheelTurn = function(channel, control, value, status, group) 
         // pitch bend
         engine.setValue(group, "jog", newValue / MixtrackPlatinumFX.jogPitchSensitivity);
     }
+
 };
 
 MixtrackPlatinumFX.timeElapsedCallback = function(value, _group, _control) {
